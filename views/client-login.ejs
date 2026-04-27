@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso de cliente | Gyminfinity</title>
+    <meta
+      name="description"
+      content="Ingresa al área privada de cliente de Gyminfinity con tu correo y teléfono de registro."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">
+        <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
+        <div>
+          <span class="brand-kicker">Gyminfinity</span>
+          <p>Acceso privado para clientes registrados.</p>
+        </div>
+      </a>
+
+      <nav class="nav-bar nav-bar-static" aria-label="Accesos">
+        <a href="/">Volver al inicio</a>
+        <a href="/admin-login" class="btn btn-secondary nav-link">Acceso admin</a>
+      </nav>
+    </header>
+
+    <main class="auth-layout">
+      <% if (flash) { %>
+        <section class="status-messages">
+          <div class="alert alert-<%= flash.type %>"><%= flash.text %></div>
+        </section>
+      <% } %>
+
+      <section class="auth-card auth-intro">
+        <span class="eyebrow">Área de cliente</span>
+        <h1>Tu espacio privado ya tiene acceso controlado y una operación mucho más clara.</h1>
+        <p>
+          Entra con el mismo correo y teléfono que usaste al registrarte para revisar tus rutinas,
+          planes, productos y estado de membresía.
+        </p>
+
+        <div class="feature-list">
+          <article class="feature-row">
+            <strong>Membresía visible</strong>
+            <span>Con días restantes y fecha de vencimiento en una sola vista.</span>
+          </article>
+          <article class="feature-row">
+            <strong>Pedidos asociados a tu cuenta</strong>
+            <span>El sistema usa tu identidad registrada para evitar inconsistencias.</span>
+          </article>
+          <article class="feature-row">
+            <strong>Ingreso seguro</strong>
+            <span>Ya no existe acceso libre al área privada sin autenticación.</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="auth-card">
+        <div class="card-heading">
+          <span class="section-kicker">Ingresar</span>
+          <h2>Recupera tu sesión de cliente</h2>
+        </div>
+
+        <form action="/client-login" method="POST" class="form-shell">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+          <div class="field">
+            <label for="client-email">Correo electrónico</label>
+            <input
+              id="client-email"
+              type="email"
+              name="email"
+              maxlength="120"
+              autocomplete="email"
+              placeholder="tucorreo@dominio.com"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="client-phone">Teléfono de registro</label>
+            <input
+              id="client-phone"
+              type="tel"
+              name="phone"
+              maxlength="30"
+              inputmode="tel"
+              autocomplete="tel"
+              placeholder="+57 300 123 4567"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Entrar a mi área</button>
+          <p class="form-note">Si todavía no tienes acceso, primero completa el registro desde la página principal.</p>
+        </form>
+
+        <div class="card-actions">
+          <a href="/#signup" class="btn btn-ghost">Crear registro nuevo</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <%= currentYear %> Gyminfinity. Acceso controlado para clientes registrados.</p>
+    </footer>
+  </body>
+</html>

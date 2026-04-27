@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso administrativo | Gyminfinity</title>
+    <meta
+      name="description"
+      content="Acceso administrativo de Gyminfinity con autenticación por sesión y panel seguro."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">
+        <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
+        <div>
+          <span class="brand-kicker">Gyminfinity Admin</span>
+          <p>Ingreso exclusivo para el equipo autorizado.</p>
+        </div>
+      </a>
+
+      <nav class="nav-bar nav-bar-static" aria-label="Accesos">
+        <a href="/">Volver al inicio</a>
+        <a href="/client-login" class="btn btn-secondary nav-link">Área cliente</a>
+      </nav>
+    </header>
+
+    <main class="auth-layout">
+      <% if (flash) { %>
+        <section class="status-messages">
+          <div class="alert alert-<%= flash.type %>"><%= flash.text %></div>
+        </section>
+      <% } %>
+
+      <section class="auth-card auth-intro">
+        <span class="eyebrow">Panel administrativo</span>
+        <h1>El dashboard ya no depende de una clave expuesta en formularios o enlaces compartidos.</h1>
+        <p>
+          Ahora el acceso administrativo usa autenticación por sesión y mantiene el control interno
+          del catálogo, usuarios, pedidos y membresías en un entorno más profesional.
+        </p>
+
+        <div class="feature-list">
+          <article class="feature-row">
+            <strong>Sesión protegida</strong>
+            <span>El acceso ya no se transmite por URL ni por inputs ocultos con la clave.</span>
+          </article>
+          <article class="feature-row">
+            <strong>Operación central</strong>
+            <span>Gestiona productos, planes, rutinas, dietas, renovaciones y estados de pedido.</span>
+          </article>
+          <article class="feature-row">
+            <strong>Validación real</strong>
+            <span>Los cambios del panel verifican datos y muestran mensajes más útiles al equipo.</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="auth-card">
+        <div class="card-heading">
+          <span class="section-kicker">Ingresar</span>
+          <h2>Acceso del equipo Gyminfinity</h2>
+        </div>
+
+        <form action="/admin-login" method="POST" class="form-shell">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+          <div class="field">
+            <label for="admin-username">Usuario</label>
+            <input
+              id="admin-username"
+              type="text"
+              name="username"
+              maxlength="60"
+              autocomplete="username"
+              placeholder="admin"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="admin-password">Contraseña</label>
+            <input
+              id="admin-password"
+              type="password"
+              name="password"
+              maxlength="128"
+              autocomplete="current-password"
+              placeholder="Ingresa tu contraseña"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Entrar al dashboard</button>
+          <p class="form-note">Mantén estas credenciales fuera del código fuente y configúralas por entorno.</p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <%= currentYear %> Gyminfinity. Acceso interno con autenticación por sesión.</p>
+    </footer>
+  </body>
+</html>

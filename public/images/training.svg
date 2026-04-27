@@ -1,0 +1,30 @@
+<svg width="640" height="480" viewBox="0 0 640 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="trainBg" x1="48" y1="36" x2="604" y2="444" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#130632" />
+      <stop offset="100%" stop-color="#050117" />
+    </linearGradient>
+    <linearGradient id="trainGrad" x1="180" y1="118" x2="520" y2="350" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7A68FF" />
+      <stop offset="50%" stop-color="#4EA5FF" />
+      <stop offset="100%" stop-color="#FF4FD8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="480" rx="40" fill="url(#trainBg)" />
+  <circle cx="520" cy="116" r="80" fill="#FF4FD8" opacity="0.14" />
+  <circle cx="126" cy="384" r="64" fill="#4EA5FF" opacity="0.14" />
+
+  <path d="M274 116C328 116 372 160 372 214C372 268 328 312 274 312C220 312 176 268 176 214C176 160 220 116 274 116Z" fill="#2C227B" />
+  <path d="M304 212C298 170 264 140 222 140C182 140 146 168 136 212" stroke="#A6B5FF" stroke-width="24" stroke-linecap="round" />
+  <path d="M248 256L188 292L226 316" stroke="#FF82EB" stroke-width="20" stroke-linecap="round" />
+
+  <path d="M420 154L474 118L530 154" stroke="#EEF2FF" stroke-width="20" stroke-linecap="round" />
+  <path d="M412 222L470 212L488 254" stroke="url(#trainGrad)" stroke-width="18" stroke-linecap="round" />
+
+  <rect x="112" y="344" width="180" height="48" rx="22" fill="#251C66" />
+  <rect x="112" y="398" width="180" height="48" rx="22" fill="#251C66" />
+
+  <rect x="442" y="328" width="162" height="84" rx="32" fill="url(#trainGrad)" opacity="0.94" />
+  <path d="M478 336L526 302L574 326" stroke="#FFF2FE" stroke-width="22" stroke-linecap="round" />
+</svg>

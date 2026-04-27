@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi área de cliente | Gyminfinity</title>
+    <meta
+      name="description"
+      content="Área privada de cliente de Gyminfinity con rutinas, nutrición, catálogo y estado de membresía."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">
+        <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
+        <div>
+          <span class="brand-kicker">Área de cliente</span>
+          <p>Bienvenido, <%= currentUser.name %>. Tu progreso y tu acceso están organizados en un solo lugar.</p>
+        </div>
+      </a>
+
+      <nav class="nav-bar nav-bar-static" aria-label="Navegación de cliente">
+        <a href="/">Inicio</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#planes">Planes</a>
+        <a href="/client/renew">Renovar</a>
+        <form action="/logout" method="POST" class="inline-action">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+          <button type="submit" class="btn btn-ghost nav-link">Cerrar sesión</button>
+        </form>
+      </nav>
+    </header>
+
+    <main class="dashboard-shell">
+      <% if (flash) { %>
+        <section class="status-messages">
+          <div class="alert alert-<%= flash.type %>"><%= flash.text %></div>
+        </section>
+      <% } %>
+
+      <section class="dashboard-hero section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Resumen personal</span>
+          <h1>Tu cuenta está activa y conectada con tu membresía, tu plan y tus pedidos.</h1>
+          <p>
+            Este panel resume lo importante para que Gyminfinity te atienda mejor y tú tengas una vista
+            mucho más clara de tu estado actual.
+          </p>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="metric-card">
+            <span class="metric-label">Plan actual</span>
+            <strong><%= currentUser.plan %></strong>
+            <p>Objetivo principal: <%= currentUser.goal %></p>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Membresía</span>
+            <strong><%= currentUser.membershipLabel %></strong>
+            <p>Vence el <%= currentUser.expiryLabel %></p>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Días restantes</span>
+            <strong><%= currentUser.daysRemaining %></strong>
+            <p>Renueva antes de llegar a cero para mantener el acceso completo.</p>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Perfil físico</span>
+            <strong><%= currentUser.age %> años</strong>
+            <p><%= currentUser.weight %> kg · <%= currentUser.height %> cm</p>
+          </article>
+        </div>
+
+        <% if (currentUser.daysRemaining <= 5) { %>
+          <div class="alert alert-warning">
+            Tu membresía está cerca de vencer. Revísala ahora para no perder acceso a tu área privada.
+          </div>
+        <% } %>
+      </section>
+
+      <section class="section section-dark">
+        <div class="section-heading">
+          <span class="section-kicker">Rutinas</span>
+          <h2>Entrenamientos disponibles dentro de tu plan.</h2>
+        </div>
+
+        <div class="card-grid">
+          <% workouts.forEach((workout) => { %>
+            <article class="card">
+              <div class="card-body">
+                <div class="card-headline">
+                  <h3><%= workout.title %></h3>
+                  <span class="pill"><%= workout.difficulty %></span>
+                </div>
+                <p class="meta"><%= workout.duration %></p>
+                <p><%= workout.description %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Nutrición</span>
+          <h2>Planes alimenticios visibles desde tu acceso privado.</h2>
+        </div>
+
+        <div class="card-grid">
+          <% diets.forEach((diet) => { %>
+            <article class="card">
+              <div class="card-body">
+                <div class="card-headline">
+                  <h3><%= diet.title %></h3>
+                  <span class="pill"><%= diet.calories %></span>
+                </div>
+                <p><%= diet.description %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section id="catalogo" class="section section-dark">
+        <div class="section-heading">
+          <span class="section-kicker">Catálogo</span>
+          <h2>Solicita productos con tu identidad ya validada por el sistema.</h2>
+          <p>El pedido usa automáticamente tu nombre y tu correo registrados. Solo necesitas indicar la dirección.</p>
+        </div>
+
+        <div class="card-grid">
+          <% products.forEach((product) => { %>
+            <article class="card card-product">
+              <img
+                src="<%= product.image_url || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80' %>"
+                alt="<%= product.name %>"
+                class="card-media"
+              />
+
+              <div class="card-body">
+                <div class="card-headline">
+                  <h3><%= product.name %></h3>
+                  <strong class="price-tag"><%= product.price %></strong>
+                </div>
+
+                <p><%= product.description %></p>
+
+                <form action="/order" method="POST" class="form-shell compact-form billing-form" data-payment-form>
+                  <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                  <input type="hidden" name="productId" value="<%= product.id %>" />
+
+                  <div class="field">
+                    <label for="address-<%= product.id %>">Dirección de entrega</label>
+                    <input
+                      id="address-<%= product.id %>"
+                      type="text"
+                      name="address"
+                      maxlength="180"
+                      autocomplete="street-address"
+                      placeholder="Ej. Calle 10 # 15-20, Bogotá"
+                      required
+                    />
+                  </div>
+
+                  <div class="billing-panel">
+                    <div class="field">
+                      <label for="billing-name-<%= product.id %>">Nombre para factura</label>
+                      <input id="billing-name-<%= product.id %>" type="text" name="billingName" maxlength="100" value="<%= currentUser.name %>" required />
+                    </div>
+
+                    <div class="field-grid">
+                      <div class="field">
+                        <label for="billing-document-<%= product.id %>">Documento/NIT</label>
+                        <input id="billing-document-<%= product.id %>" type="text" name="billingDocument" maxlength="30" placeholder="CC, CE o NIT" required />
+                      </div>
+
+                      <div class="field">
+                        <label for="billing-phone-<%= product.id %>">Telefono</label>
+                        <input id="billing-phone-<%= product.id %>" type="tel" name="billingPhone" maxlength="30" value="<%= currentUser.phone %>" required />
+                      </div>
+                    </div>
+
+                    <div class="field-grid">
+                      <div class="field">
+                        <label for="billing-email-<%= product.id %>">Correo de facturacion</label>
+                        <input id="billing-email-<%= product.id %>" type="email" name="billingEmail" maxlength="120" value="<%= currentUser.email %>" required />
+                      </div>
+
+                      <div class="field">
+                        <label for="billing-address-<%= product.id %>">Direccion de facturacion</label>
+                        <input id="billing-address-<%= product.id %>" type="text" name="billingAddress" maxlength="180" placeholder="Si es igual, repite la direccion" required />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="payment-box">
+                    <span class="form-note">Metodo de pago</span>
+                    <div class="payment-options" role="radiogroup" aria-label="Metodo de pago">
+                      <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="card" checked />
+                        <span>Tarjeta de credito</span>
+                      </label>
+                      <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="cash" />
+                        <span>Efectivo</span>
+                      </label>
+                    </div>
+
+                    <div class="payment-fields" data-payment-section="card">
+                      <div class="field">
+                        <label for="card-holder-<%= product.id %>">Titular de la tarjeta</label>
+                        <input id="card-holder-<%= product.id %>" type="text" name="cardHolder" maxlength="100" autocomplete="cc-name" />
+                      </div>
+
+                      <div class="field">
+                        <label for="card-number-<%= product.id %>">Numero de tarjeta</label>
+                        <input id="card-number-<%= product.id %>" type="text" name="cardNumber" inputmode="numeric" maxlength="23" autocomplete="cc-number" placeholder="4111 1111 1111 1111" />
+                      </div>
+
+                      <div class="field-grid field-grid-compact">
+                        <div class="field">
+                          <label for="card-expiry-<%= product.id %>">Vence</label>
+                          <input id="card-expiry-<%= product.id %>" type="text" name="cardExpiry" maxlength="5" placeholder="MM/AA" autocomplete="cc-exp" />
+                        </div>
+
+                        <div class="field">
+                          <label for="card-cvv-<%= product.id %>">CVV</label>
+                          <input id="card-cvv-<%= product.id %>" type="password" name="cardCvv" inputmode="numeric" maxlength="4" autocomplete="cc-csc" />
+                        </div>
+
+                        <div class="field">
+                          <label for="card-installments-<%= product.id %>">Cuotas</label>
+                          <select id="card-installments-<%= product.id %>" name="cardInstallments">
+                            <option value="1">1</option>
+                            <option value="3">3</option>
+                            <option value="6">6</option>
+                            <option value="12">12</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="payment-fields" data-payment-section="cash" hidden>
+                      <div class="field">
+                        <label for="cash-receiver-<%= product.id %>">Persona que entrega el efectivo</label>
+                        <input id="cash-receiver-<%= product.id %>" type="text" name="cashReceiver" maxlength="100" value="<%= currentUser.name %>" />
+                      </div>
+
+                      <div class="field">
+                        <label for="cash-notes-<%= product.id %>">Notas para caja</label>
+                        <textarea id="cash-notes-<%= product.id %>" name="cashNotes" rows="3" maxlength="220" placeholder="Ej. Pago al recibir, pago en sede o cambio requerido."></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block">Solicitar compra</button>
+                  <p class="form-note">Pedido asociado a <%= currentUser.name %> · <%= currentUser.email %></p>
+                </form>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section id="planes" class="section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Planes</span>
+          <h2>Revisa la oferta completa disponible en Gyminfinity.</h2>
+        </div>
+
+        <div class="card-grid">
+          <% plans.forEach((plan) => { %>
+            <article class="card">
+              <div class="card-body">
+                <div class="card-headline">
+                  <h3><%= plan.name %></h3>
+                  <strong class="price-tag"><%= plan.price %></strong>
+                </div>
+                <p><%= plan.features %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <%= currentYear %> Gyminfinity. Tu acceso privado ahora responde al estado real de tu membresía.</p>
+    </footer>
+  </body>
+</html>

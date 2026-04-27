@@ -1,0 +1,16 @@
+{
+  "name": "gyminfinity-site",
+  "version": "1.0.0",
+  "description": "Plataforma web de Gyminfinity con autenticación, gestión administrativa y experiencia de cliente.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check db.js && node --check public/js/main.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.4",
+    "sqlite3": "^5.1.6"
+  }
+}

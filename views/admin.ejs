@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard administrativo | Gyminfinity</title>
+    <meta
+      name="description"
+      content="Panel administrativo de Gyminfinity para gestionar usuarios, membresías, pedidos y catálogo."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">
+        <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
+        <div>
+          <span class="brand-kicker">Dashboard Gyminfinity</span>
+          <p>Gestión profesional de contenido, usuarios, pedidos y renovaciones.</p>
+        </div>
+      </a>
+
+      <nav class="nav-bar nav-bar-static" aria-label="Navegación administrativa">
+        <a href="#products">Productos</a>
+        <a href="#users">Usuarios</a>
+        <a href="#orders">Pedidos</a>
+        <a href="#billing">Facturacion</a>
+        <a href="/">Ver sitio</a>
+        <form action="/logout" method="POST" class="inline-action">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+          <button type="submit" class="btn btn-ghost nav-link">Cerrar sesión</button>
+        </form>
+      </nav>
+    </header>
+
+    <main class="dashboard-shell">
+      <% if (flash) { %>
+        <section class="status-messages">
+          <div class="alert alert-<%= flash.type %>"><%= flash.text %></div>
+        </section>
+      <% } %>
+
+      <section class="dashboard-hero section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Panel administrativo</span>
+          <h1>Gyminfinity ya cuenta con una operación más segura, validada y fácil de mantener.</h1>
+          <p>
+            Este dashboard concentra la edición del catálogo, la revisión de usuarios, la renovación
+            de membresías y el seguimiento de pedidos sin exponer credenciales en la interfaz.
+          </p>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="metric-card">
+            <span class="metric-label">Usuarios totales</span>
+            <strong><%= metrics.totalUsers %></strong>
+            <p><%= metrics.activeUsers %> activos · <%= metrics.expiredUsers %> vencidos</p>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Pedidos</span>
+            <strong><%= metrics.totalOrders %></strong>
+            <p><%= metrics.pendingOrders %> pendientes por revisar</p>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Facturas pagadas</span>
+            <strong><%= metrics.paidInvoices %></strong>
+            <p>Tarjeta confirmada o efectivo conciliado</p>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Productos</span>
+            <strong><%= metrics.totalProducts %></strong>
+            <p>Catálogo editable desde el panel</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="products" class="section section-dark">
+        <div class="section-heading">
+          <span class="section-kicker">Productos</span>
+          <h2>Gestiona el catálogo con validaciones reales.</h2>
+        </div>
+
+        <div class="section-grid">
+          <article class="admin-card">
+            <div class="card-heading">
+              <span class="section-kicker">Nuevo producto</span>
+              <h3>Agregar producto</h3>
+            </div>
+
+            <form action="/admin/products/add" method="POST" class="form-shell">
+              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+              <div class="field">
+                <label for="product-name">Nombre</label>
+                <input id="product-name" type="text" name="name" maxlength="80" required />
+              </div>
+
+              <div class="field-grid">
+                <div class="field">
+                  <label for="product-price">Precio</label>
+                  <input id="product-price" type="text" name="price" maxlength="40" required />
+                </div>
+
+                <div class="field">
+                  <label for="product-image">Imagen (URL)</label>
+                  <input id="product-image" type="url" name="imageUrl" maxlength="300" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="product-description">Descripción</label>
+                <textarea id="product-description" name="description" rows="5" maxlength="400" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">Guardar producto</button>
+            </form>
+          </article>
+
+          <article class="table-card">
+            <div class="card-heading">
+              <span class="section-kicker">Catálogo actual</span>
+              <h3>Productos disponibles</h3>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% products.forEach((product) => { %>
+                    <tr>
+                      <td><%= product.id %></td>
+                      <td>
+                        <div class="table-media">
+                          <img
+                            src="<%= product.image_url || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80' %>"
+                            alt="<%= product.name %>"
+                            class="product-thumb"
+                          />
+                          <strong><%= product.name %></strong>
+                        </div>
+                      </td>
+                      <td><%= product.price %></td>
+                      <td><%= product.description %></td>
+                      <td>
+                        <form action="/admin/products/update" method="POST" class="inline-form">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= product.id %>" />
+                          <input type="text" name="name" value="<%= product.name %>" maxlength="80" required />
+                          <input type="text" name="price" value="<%= product.price %>" maxlength="40" required />
+                          <input type="url" name="imageUrl" value="<%= product.image_url %>" maxlength="300" />
+                          <textarea name="description" rows="3" maxlength="400" required><%= product.description %></textarea>
+                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
+                        </form>
+                      </td>
+                      <td>
+                        <form action="/admin/products/delete" method="POST" class="inline-form inline-form-danger">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= product.id %>" />
+                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Planes</span>
+          <h2>Actualiza la oferta comercial sin tocar el código.</h2>
+        </div>
+
+        <div class="section-grid">
+          <article class="admin-card">
+            <div class="card-heading">
+              <span class="section-kicker">Nuevo plan</span>
+              <h3>Agregar plan</h3>
+            </div>
+
+            <form action="/admin/plans/add" method="POST" class="form-shell">
+              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+              <div class="field">
+                <label for="plan-name">Nombre</label>
+                <input id="plan-name" type="text" name="name" maxlength="80" required />
+              </div>
+
+              <div class="field">
+                <label for="plan-price">Precio</label>
+                <input id="plan-price" type="text" name="price" maxlength="40" required />
+              </div>
+
+              <div class="field">
+                <label for="plan-features">Descripción</label>
+                <textarea id="plan-features" name="features" rows="5" maxlength="400" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">Guardar plan</button>
+            </form>
+          </article>
+
+          <article class="table-card">
+            <div class="card-heading">
+              <span class="section-kicker">Planes activos</span>
+              <h3>Oferta comercial</h3>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Plan</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% plans.forEach((plan) => { %>
+                    <tr>
+                      <td><%= plan.id %></td>
+                      <td><strong><%= plan.name %></strong></td>
+                      <td><%= plan.price %></td>
+                      <td><%= plan.features %></td>
+                      <td>
+                        <form action="/admin/plans/update" method="POST" class="inline-form">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= plan.id %>" />
+                          <input type="text" name="name" value="<%= plan.name %>" maxlength="80" required />
+                          <input type="text" name="price" value="<%= plan.price %>" maxlength="40" required />
+                          <textarea name="features" rows="3" maxlength="400" required><%= plan.features %></textarea>
+                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
+                        </form>
+                      </td>
+                      <td>
+                        <form action="/admin/plans/delete" method="POST" class="inline-form inline-form-danger">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= plan.id %>" />
+                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-dark">
+        <div class="section-heading">
+          <span class="section-kicker">Rutinas</span>
+          <h2>Mantén el contenido de entrenamiento alineado con la propuesta del gimnasio.</h2>
+        </div>
+
+        <div class="section-grid">
+          <article class="admin-card">
+            <div class="card-heading">
+              <span class="section-kicker">Nueva rutina</span>
+              <h3>Agregar rutina</h3>
+            </div>
+
+            <form action="/admin/workouts/add" method="POST" class="form-shell">
+              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+              <div class="field">
+                <label for="workout-title">Título</label>
+                <input id="workout-title" type="text" name="title" maxlength="80" required />
+              </div>
+
+              <div class="field-grid">
+                <div class="field">
+                  <label for="workout-duration">Duración</label>
+                  <input id="workout-duration" type="text" name="duration" maxlength="40" required />
+                </div>
+
+                <div class="field">
+                  <label for="workout-difficulty">Dificultad</label>
+                  <input id="workout-difficulty" type="text" name="difficulty" maxlength="40" required />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="workout-description">Descripción</label>
+                <textarea id="workout-description" name="description" rows="5" maxlength="400" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">Guardar rutina</button>
+            </form>
+          </article>
+
+          <article class="table-card">
+            <div class="card-heading">
+              <span class="section-kicker">Rutinas activas</span>
+              <h3>Contenido deportivo</h3>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Duración</th>
+                    <th>Dificultad</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% workouts.forEach((workout) => { %>
+                    <tr>
+                      <td><%= workout.id %></td>
+                      <td><strong><%= workout.title %></strong></td>
+                      <td><%= workout.duration %></td>
+                      <td><%= workout.difficulty %></td>
+                      <td><%= workout.description %></td>
+                      <td>
+                        <form action="/admin/workouts/update" method="POST" class="inline-form">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= workout.id %>" />
+                          <input type="text" name="title" value="<%= workout.title %>" maxlength="80" required />
+                          <input type="text" name="duration" value="<%= workout.duration %>" maxlength="40" required />
+                          <input type="text" name="difficulty" value="<%= workout.difficulty %>" maxlength="40" required />
+                          <textarea name="description" rows="3" maxlength="400" required><%= workout.description %></textarea>
+                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
+                        </form>
+                      </td>
+                      <td>
+                        <form action="/admin/workouts/delete" method="POST" class="inline-form inline-form-danger">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= workout.id %>" />
+                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Dietas</span>
+          <h2>Administra el contenido nutricional desde el mismo flujo profesional.</h2>
+        </div>
+
+        <div class="section-grid">
+          <article class="admin-card">
+            <div class="card-heading">
+              <span class="section-kicker">Nueva dieta</span>
+              <h3>Agregar dieta</h3>
+            </div>
+
+            <form action="/admin/diets/add" method="POST" class="form-shell">
+              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+              <div class="field">
+                <label for="diet-title">Título</label>
+                <input id="diet-title" type="text" name="title" maxlength="80" required />
+              </div>
+
+              <div class="field">
+                <label for="diet-calories">Calorías</label>
+                <input id="diet-calories" type="text" name="calories" maxlength="40" required />
+              </div>
+
+              <div class="field">
+                <label for="diet-description">Descripción</label>
+                <textarea id="diet-description" name="description" rows="5" maxlength="400" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">Guardar dieta</button>
+            </form>
+          </article>
+
+          <article class="table-card">
+            <div class="card-heading">
+              <span class="section-kicker">Dietas activas</span>
+              <h3>Contenido nutricional</h3>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Calorías</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% diets.forEach((diet) => { %>
+                    <tr>
+                      <td><%= diet.id %></td>
+                      <td><strong><%= diet.title %></strong></td>
+                      <td><%= diet.calories %></td>
+                      <td><%= diet.description %></td>
+                      <td>
+                        <form action="/admin/diets/update" method="POST" class="inline-form">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= diet.id %>" />
+                          <input type="text" name="title" value="<%= diet.title %>" maxlength="80" required />
+                          <input type="text" name="calories" value="<%= diet.calories %>" maxlength="40" required />
+                          <textarea name="description" rows="3" maxlength="400" required><%= diet.description %></textarea>
+                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
+                        </form>
+                      </td>
+                      <td>
+                        <form action="/admin/diets/delete" method="POST" class="inline-form inline-form-danger">
+                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                          <input type="hidden" name="id" value="<%= diet.id %>" />
+                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="users" class="section section-dark">
+        <div class="section-heading">
+          <span class="section-kicker">Usuarios</span>
+          <h2>Controla membresías, perfil y vencimientos desde una sola tabla.</h2>
+        </div>
+
+        <article class="table-card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Usuario</th>
+                  <th>Plan</th>
+                  <th>Objetivo</th>
+                  <th>Perfil</th>
+                  <th>Registro</th>
+                  <th>Membresía</th>
+                  <th>Renovar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach((user) => { %>
+                  <tr>
+                    <td><%= user.id %></td>
+                    <td>
+                      <strong><%= user.name %></strong>
+                      <div class="table-meta"><%= user.email %></div>
+                      <div class="table-meta"><%= user.phone %></div>
+                    </td>
+                    <td><%= user.plan %></td>
+                    <td><%= user.goal %></td>
+                    <td><%= user.age %> años · <%= user.weight %> kg · <%= user.height %> cm</td>
+                    <td><%= user.createdAtLabel %></td>
+                    <td>
+                      <span class="badge <%= user.membershipTone %>"><%= user.membershipLabel %></span>
+                      <div class="table-meta"><%= user.daysRemaining %> días restantes</div>
+                      <div class="table-meta">Vence: <%= user.expiryLabel %></div>
+                    </td>
+                    <td>
+                      <form action="/admin/user/renew" method="POST" class="inline-form">
+                        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                        <input type="hidden" name="userId" value="<%= user.id %>" />
+                        <input type="number" name="days" min="1" max="365" value="30" required />
+                        <button type="submit" class="btn btn-primary btn-small">Renovar</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section id="orders" class="section section-light">
+        <div class="section-heading">
+          <span class="section-kicker">Pedidos</span>
+          <h2>Supervisa el flujo de compra con estados visibles y editables.</h2>
+        </div>
+
+        <article class="table-card">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Producto</th>
+                  <th>Cliente</th>
+                  <th>Dirección</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Actualizar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach((order) => { %>
+                  <tr>
+                    <td><%= order.id %></td>
+                    <td><strong><%= order.productName %></strong></td>
+                    <td>
+                      <strong><%= order.full_name %></strong>
+                      <div class="table-meta"><%= order.email %></div>
+                    </td>
+                    <td><%= order.address %></td>
+                    <td><%= order.createdAtLabel %></td>
+                    <td><span class="badge <%= order.statusTone %>"><%= order.status %></span></td>
+                    <td>
+                      <form action="/admin/orders/status" method="POST" class="inline-form">
+                        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                        <input type="hidden" name="orderId" value="<%= order.id %>" />
+                        <select name="status" required>
+                          <% orderStatuses.forEach((status) => { %>
+                            <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status %></option>
+                          <% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-secondary btn-small">Guardar</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section id="billing" class="section section-dark">
+        <div class="section-heading">
+          <span class="section-kicker">Facturacion</span>
+          <h2>Consulta facturas, metodo de pago y datos fiscales de cada compra.</h2>
+        </div>
+
+        <article class="table-card">
+          <div class="table-wrap">
+            <table class="data-table billing-table">
+              <thead>
+                <tr>
+                  <th>Factura</th>
+                  <th>Cliente fiscal</th>
+                  <th>Producto</th>
+                  <th>Metodo</th>
+                  <th>Pago</th>
+                  <th>Referencia</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach((order) => { %>
+                  <tr>
+                    <td>
+                      <strong><%= order.invoiceNumber %></strong>
+                      <div class="table-meta"><%= order.invoice_status || 'Emitida' %></div>
+                      <div class="table-meta"><%= order.createdAtLabel %></div>
+                    </td>
+                    <td>
+                      <strong><%= order.billing_name || order.full_name %></strong>
+                      <div class="table-meta">Doc: <%= order.billing_document || 'No registrado' %></div>
+                      <div class="table-meta"><%= order.billing_email || order.email %></div>
+                      <div class="table-meta"><%= order.billing_phone || 'Sin telefono' %></div>
+                    </td>
+                    <td><%= order.productName %></td>
+                    <td><%= order.paymentMethodLabel %></td>
+                    <td><span class="badge <%= order.paymentStatusTone %>"><%= order.payment_status || 'Pendiente' %></span></td>
+                    <td><%= order.payment_reference || 'Sin referencia' %></td>
+                    <td>
+                      <% if (order.payment_method === 'card') { %>
+                        <strong><%= order.card_brand || 'Tarjeta' %> **** <%= order.card_last4 || '----' %></strong>
+                        <div class="table-meta">Titular: <%= order.card_holder || 'No registrado' %></div>
+                        <div class="table-meta">Cuotas: <%= order.card_installments || 1 %></div>
+                      <% } else if (order.payment_method === 'cash') { %>
+                        <strong>Pago en efectivo</strong>
+                        <div class="table-meta">Entrega: <%= order.cash_receiver || order.billing_name || order.full_name %></div>
+                        <div class="table-meta"><%= order.cash_notes || 'Sin notas de caja' %></div>
+                      <% } else { %>
+                        <strong>Sin metodo registrado</strong>
+                        <div class="table-meta">Pedido anterior al modulo de facturacion.</div>
+                      <% } %>
+                      <form action="/admin/billing/status" method="POST" class="inline-form billing-status-form">
+                        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                        <input type="hidden" name="orderId" value="<%= order.id %>" />
+                        <select name="paymentStatus" required>
+                          <% paymentStatuses.forEach((status) => { %>
+                            <option value="<%= status %>" <%= order.payment_status === status ? 'selected' : '' %>><%= status %></option>
+                          <% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-secondary btn-small">Actualizar pago</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <%= currentYear %> Gyminfinity. Dashboard interno con control más serio, limpio y mantenible.</p>
+    </footer>
+  </body>
+</html>

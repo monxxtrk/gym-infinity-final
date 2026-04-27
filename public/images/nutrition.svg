@@ -1,0 +1,30 @@
+<svg width="640" height="480" viewBox="0 0 640 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nutriBg" x1="42" y1="36" x2="600" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#15073A" />
+      <stop offset="100%" stop-color="#060118" />
+    </linearGradient>
+    <linearGradient id="nutriGrad" x1="168" y1="132" x2="520" y2="368" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7A68FF" />
+      <stop offset="52%" stop-color="#4EA5FF" />
+      <stop offset="100%" stop-color="#FF4FD8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="480" rx="40" fill="url(#nutriBg)" />
+  <circle cx="126" cy="120" r="86" fill="#4EA5FF" opacity="0.16" />
+  <circle cx="506" cy="344" r="108" fill="#FF4FD8" opacity="0.14" />
+
+  <rect x="98" y="212" width="270" height="128" rx="32" fill="#1C1652" />
+  <path d="M184 236C192 202 214 174 256 162C300 150 346 160 372 186" stroke="#BBC4FF" stroke-width="24" stroke-linecap="round" />
+
+  <path
+    d="M404 198C424 168 466 154 504 166C542 178 572 214 568 252C564 292 534 324 494 328C454 332 420 304 404 270C392 244 392 220 404 198Z"
+    fill="url(#nutriGrad)"
+    opacity="0.9"
+  />
+  <path d="M456 240C476 228 498 224 522 238" stroke="#FFF2FE" stroke-width="20" stroke-linecap="round" />
+
+  <path d="M226 306H392" stroke="#A8B6FF" stroke-width="28" stroke-linecap="round" />
+  <path d="M208 356H418" stroke="#FF8EEF" stroke-width="24" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Renovar membresía | Gyminfinity</title>
+    <meta
+      name="description"
+      content="Renueva tu membresía de Gyminfinity para recuperar el acceso completo a tu área privada."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">
+        <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
+        <div>
+          <span class="brand-kicker">Renovación</span>
+          <p>Recupera el acceso completo a la experiencia Gyminfinity.</p>
+        </div>
+      </a>
+
+      <nav class="nav-bar nav-bar-static" aria-label="Renovación">
+        <a href="/">Inicio</a>
+        <a href="/client-login">Área cliente</a>
+      </nav>
+    </header>
+
+    <main class="auth-layout">
+      <% if (flash) { %>
+        <section class="status-messages">
+          <div class="alert alert-<%= flash.type %>"><%= flash.text %></div>
+        </section>
+      <% } %>
+
+      <section class="auth-card auth-intro">
+        <span class="eyebrow">Estado de acceso</span>
+        <h1>Tu membresía necesita renovación para volver a usar el área privada completa.</h1>
+        <p>
+          El acceso al panel de cliente ahora se valida con el estado real de tu membresía. Cuando esta
+          vence, el sistema protege el contenido y te redirige a esta pantalla de recuperación.
+        </p>
+
+        <% if (currentUser) { %>
+          <div class="feature-list">
+            <article class="feature-row">
+              <strong>Cliente</strong>
+              <span><%= currentUser.name %></span>
+            </article>
+            <article class="feature-row">
+              <strong>Plan</strong>
+              <span><%= currentUser.plan %></span>
+            </article>
+            <article class="feature-row">
+              <strong>Vencimiento</strong>
+              <span><%= currentUser.expiryLabel %></span>
+            </article>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="auth-card">
+        <div class="card-heading">
+          <span class="section-kicker">Siguiente paso</span>
+          <h2>Vuelve a activar tu experiencia</h2>
+        </div>
+
+        <div class="feature-list">
+          <article class="feature-row">
+            <strong>1. Revisa los planes</strong>
+            <span>Consulta la oferta actual antes de renovar.</span>
+          </article>
+          <article class="feature-row">
+            <strong>2. Contacta al equipo</strong>
+            <span>Coordina la renovación con el personal de Gyminfinity.</span>
+          </article>
+          <article class="feature-row">
+            <strong>3. Ingresa otra vez</strong>
+            <span>Una vez renovada, vuelve a tu área de cliente.</span>
+          </article>
+        </div>
+
+        <div class="card-actions card-actions-column">
+          <a href="/#plans" class="btn btn-primary">Ver planes disponibles</a>
+          <a href="/#contact" class="btn btn-secondary">Ver canales de contacto</a>
+          <a href="/client-login" class="btn btn-ghost">Volver al acceso cliente</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <%= currentYear %> Gyminfinity. La renovación ahora forma parte del control real de acceso.</p>
+    </footer>
+  </body>
+</html>
