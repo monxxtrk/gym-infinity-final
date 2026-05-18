@@ -22,6 +22,9 @@
 
       <nav class="nav-bar nav-bar-static" aria-label="Navegación administrativa">
         <a href="#products">Productos</a>
+        <a href="#plans">Planes</a>
+        <a href="#workouts">Rutinas</a>
+        <a href="#diets">Dietas</a>
         <a href="#users">Usuarios</a>
         <a href="#orders">Pedidos</a>
         <a href="/">Ver sitio</a>
@@ -69,6 +72,15 @@
           </article>
         </div>
       </section>
+
+      <nav class="dashboard-nav" aria-label="Secciones del dashboard">
+        <a href="#products">Productos</a>
+        <a href="#plans">Planes</a>
+        <a href="#workouts">Rutinas</a>
+        <a href="#diets">Dietas</a>
+        <a href="#users">Usuarios</a>
+        <a href="#orders">Pedidos</a>
+      </nav>
 
       <section id="products" class="section section-dark">
         <div class="section-heading">
@@ -146,8 +158,10 @@
                       </td>
                       <td><%= product.price %></td>
                       <td><%= product.description %></td>
-                      <td>
-                        <form action="/admin/products/update" method="POST" class="inline-form">
+                      <td class="action-cell">
+                        <details class="edit-panel">
+                          <summary>Editar</summary>
+                          <form action="/admin/products/update" method="POST" class="inline-form">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= product.id %>" />
                           <input type="text" name="name" value="<%= product.name %>" maxlength="80" required />
@@ -155,9 +169,10 @@
                           <input type="url" name="imageUrl" value="<%= product.image_url %>" maxlength="300" />
                           <textarea name="description" rows="3" maxlength="400" required><%= product.description %></textarea>
                           <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                        </form>
+                          </form>
+                        </details>
                       </td>
-                      <td>
+                      <td class="action-cell">
                         <form action="/admin/products/delete" method="POST" class="inline-form inline-form-danger">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= product.id %>" />
@@ -173,7 +188,7 @@
         </div>
       </section>
 
-      <section class="section section-light">
+      <section id="plans" class="section section-light">
         <div class="section-heading">
           <span class="section-kicker">Planes</span>
           <h2>Actualiza la oferta comercial sin tocar el código.</h2>
@@ -233,17 +248,20 @@
                       <td><strong><%= plan.name %></strong></td>
                       <td><%= plan.price %></td>
                       <td><%= plan.features %></td>
-                      <td>
-                        <form action="/admin/plans/update" method="POST" class="inline-form">
+                      <td class="action-cell">
+                        <details class="edit-panel">
+                          <summary>Editar</summary>
+                          <form action="/admin/plans/update" method="POST" class="inline-form">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= plan.id %>" />
                           <input type="text" name="name" value="<%= plan.name %>" maxlength="80" required />
                           <input type="text" name="price" value="<%= plan.price %>" maxlength="40" required />
                           <textarea name="features" rows="3" maxlength="400" required><%= plan.features %></textarea>
                           <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                        </form>
+                          </form>
+                        </details>
                       </td>
-                      <td>
+                      <td class="action-cell">
                         <form action="/admin/plans/delete" method="POST" class="inline-form inline-form-danger">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= plan.id %>" />
@@ -259,7 +277,7 @@
         </div>
       </section>
 
-      <section class="section section-dark">
+      <section id="workouts" class="section section-dark">
         <div class="section-heading">
           <span class="section-kicker">Rutinas</span>
           <h2>Mantén el contenido de entrenamiento alineado con la propuesta del gimnasio.</h2>
@@ -328,8 +346,10 @@
                       <td><%= workout.duration %></td>
                       <td><%= workout.difficulty %></td>
                       <td><%= workout.description %></td>
-                      <td>
-                        <form action="/admin/workouts/update" method="POST" class="inline-form">
+                      <td class="action-cell">
+                        <details class="edit-panel">
+                          <summary>Editar</summary>
+                          <form action="/admin/workouts/update" method="POST" class="inline-form">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= workout.id %>" />
                           <input type="text" name="title" value="<%= workout.title %>" maxlength="80" required />
@@ -337,9 +357,10 @@
                           <input type="text" name="difficulty" value="<%= workout.difficulty %>" maxlength="40" required />
                           <textarea name="description" rows="3" maxlength="400" required><%= workout.description %></textarea>
                           <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                        </form>
+                          </form>
+                        </details>
                       </td>
-                      <td>
+                      <td class="action-cell">
                         <form action="/admin/workouts/delete" method="POST" class="inline-form inline-form-danger">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= workout.id %>" />
@@ -355,7 +376,7 @@
         </div>
       </section>
 
-      <section class="section section-light">
+      <section id="diets" class="section section-light">
         <div class="section-heading">
           <span class="section-kicker">Dietas</span>
           <h2>Administra el contenido nutricional desde el mismo flujo profesional.</h2>
@@ -415,17 +436,20 @@
                       <td><strong><%= diet.title %></strong></td>
                       <td><%= diet.calories %></td>
                       <td><%= diet.description %></td>
-                      <td>
-                        <form action="/admin/diets/update" method="POST" class="inline-form">
+                      <td class="action-cell">
+                        <details class="edit-panel">
+                          <summary>Editar</summary>
+                          <form action="/admin/diets/update" method="POST" class="inline-form">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= diet.id %>" />
                           <input type="text" name="title" value="<%= diet.title %>" maxlength="80" required />
                           <input type="text" name="calories" value="<%= diet.calories %>" maxlength="40" required />
                           <textarea name="description" rows="3" maxlength="400" required><%= diet.description %></textarea>
                           <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                        </form>
+                          </form>
+                        </details>
                       </td>
-                      <td>
+                      <td class="action-cell">
                         <form action="/admin/diets/delete" method="POST" class="inline-form inline-form-danger">
                           <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                           <input type="hidden" name="id" value="<%= diet.id %>" />

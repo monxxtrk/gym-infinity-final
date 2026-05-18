@@ -565,7 +565,8 @@ p {
 }
 
 .section-grid {
-  grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  align-items: start;
 }
 
 .contact-grid {
@@ -706,8 +707,50 @@ p {
   margin-top: 0;
 }
 
+.dashboard-nav {
+  position: sticky;
+  top: 96px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  overflow-x: auto;
+  margin: 20px 0 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(10, 8, 33, 0.86);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
+}
+
+.dashboard-nav a {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 800;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-nav a:hover {
+  color: var(--text);
+  background: rgba(139, 99, 255, 0.16);
+  transform: translateY(-1px);
+}
+
 .dashboard-grid {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-card {
+  position: sticky;
+  top: 178px;
+}
+
+.table-card {
+  overflow: hidden;
 }
 
 .metric-card {
@@ -1075,27 +1118,51 @@ select:focus {
    ========================================================= */
 .table-wrap {
   overflow-x: auto;
+  border-radius: var(--radius-md);
 }
 
 .data-table {
   width: 100%;
-  min-width: 960px;
-  border-collapse: collapse;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .data-table th,
 .data-table td {
-  padding: 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  vertical-align: top;
+  vertical-align: middle;
   text-align: left;
 }
 
 .data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(16, 14, 46, 0.98);
   color: var(--accent);
   font-size: 0.84rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.data-table td:nth-child(4),
+.data-table td:nth-child(5) {
+  max-width: 360px;
+}
+
+.action-cell {
+  width: 1%;
+  min-width: 132px;
 }
 
 .table-media {
@@ -1115,7 +1182,7 @@ select:focus {
 .inline-form {
   display: grid;
   gap: 10px;
-  min-width: 240px;
+  min-width: 220px;
 }
 
 .inline-form textarea {
@@ -1124,6 +1191,41 @@ select:focus {
 
 .inline-form-danger {
   min-width: unset;
+}
+
+.edit-panel {
+  min-width: 240px;
+}
+
+.edit-panel summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 800;
+  list-style: none;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+}
+
+.edit-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.edit-panel summary:hover {
+  border-color: rgba(139, 99, 255, 0.4);
+  background: rgba(139, 99, 255, 0.16);
+}
+
+.edit-panel[open] summary {
+  margin-bottom: 12px;
+  color: #f8f4ff;
+  background: rgba(139, 99, 255, 0.24);
 }
 
 .billing-status-form {
@@ -1282,6 +1384,11 @@ select:focus {
 
   .data-table {
     min-width: 820px;
+  }
+
+  .dashboard-nav,
+  .admin-card {
+    position: static;
   }
 }
 
