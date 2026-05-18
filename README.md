@@ -13,6 +13,30 @@ Plataforma web para Gyminfinity con sitio publico, area privada de cliente, dash
 - App Android Studio en `android-app/`.
 - Pruebas automatizadas con Jest + Supertest.
 
+## 👨‍🏫 Guía para el Evaluador (Instrucciones Rápidas)
+
+Si eres el instructor y deseas revisar este proyecto localmente, sigue estos pasos:
+
+### 1. Preparar el Servidor Web (Backend)
+Desde la raíz del proyecto (`gyminfinity-site`):
+1. Ejecuta `npm install`.
+2. Crea un archivo `.env` basado en `.env.example`.
+3. Ejecuta `npm start`.
+4. Verifica que el sitio cargue en `http://localhost:3000`.
+
+### 2. Ejecutar la App Android
+1. Abre la carpeta `android-app/` en **Android Studio**.
+2. Espera a que termine la sincronización de Gradle (elefante azul).
+3. Lanza el emulador (Pixel 7 o similar).
+4. La app se conectará automáticamente al servidor desplegado en **Render** (`https://gym-infinity.onrender.com`), por lo que NO es estrictamente necesario tener el servidor local encendido para que la app funcione.
+
+---
+
+## 🚀 Despliegue en Render
+El sitio web ya se encuentra desplegado en: [https://gym-infinity.onrender.com](https://gym-infinity.onrender.com)
+
+---
+
 ## Requisitos
 
 - Node.js 18 o superior.

@@ -26,12 +26,12 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "GYMINFINITY_BASE_URL", "\"http://10.0.2.2:3000\""
+            buildConfigField "String", "GYMINFINITY_BASE_URL", "\"https://gym-infinity.onrender.com\""
         }
 
         release {
             minifyEnabled false
-            buildConfigField "String", "GYMINFINITY_BASE_URL", "\"https://tu-dominio-gyminfinity.com\""
+            buildConfigField "String", "GYMINFINITY_BASE_URL", "\"https://gym-infinity.onrender.com\""
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
