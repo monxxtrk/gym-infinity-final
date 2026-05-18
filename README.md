@@ -1,111 +1,112 @@
 # Gyminfinity
 
-Proyecto desarrollado como entrega academica para la gestion de un gimnasio. La plataforma permite administrar clientes, planes, productos, rutinas, dietas, pedidos y facturacion desde una aplicacion web, ademas de incluir una version Android creada en Android Studio.
+Gyminfinity es un proyecto academico pensado para organizar la informacion principal de un gimnasio. Como equipo buscamos que el sistema permita registrar clientes, revisar planes, manejar productos, consultar rutinas, administrar dietas y llevar un control basico de pedidos y facturacion.
 
-## Enlace del proyecto desplegado
+El proyecto todavia se puede seguir mejorando, pero ya cuenta con una base funcional para mostrar la idea, probar el flujo completo y explicar como se podria usar en un gimnasio real.
 
-El proyecto se puede revisar directamente desde la siguiente direccion:
+## Proyecto en linea
+
+La version publicada se puede revisar aqui:
 
 [https://gym-infinity.onrender.com](https://gym-infinity.onrender.com)
 
-Nota: el servicio esta desplegado en el plan gratuito de Render. Si la pagina no abre de inmediato, puede tardar unos segundos en iniciar porque el servidor entra en reposo cuando no recibe visitas.
+Nota: Render esta usando el plan gratuito. Si la pagina tarda en abrir, es normal; el servicio puede tardar unos segundos en iniciar cuando lleva un rato sin visitas.
 
-## Estado del proyecto
+## Que incluye el proyecto
 
-- Backend desarrollado con Node.js y Express.
-- Vistas dinamicas con EJS.
+- Aplicacion web con Node.js y Express.
+- Vistas con EJS.
 - Base de datos SQLite.
-- Panel administrativo con autenticacion por sesiones.
+- Panel administrativo con inicio de sesion.
 - Area privada para clientes.
-- Gestion de productos, planes, rutinas, dietas, usuarios, pedidos y facturacion.
-- Aplicacion Android Studio ubicada en la carpeta `android-app/`.
+- Gestion de productos, planes, rutinas, dietas, usuarios, pedidos y facturas.
+- Aplicacion Android Studio dentro de `android-app/`.
 - Pruebas automatizadas con Jest y Supertest.
 
-## Guia para el instructor
+## Guia para revisar
 
-Estimado instructor, este repositorio contiene la version web y la version Android del proyecto Gyminfinity. La forma mas rapida de revisar el sistema es ingresar al despliegue publico:
+Profesor, companeros o evaluadores pueden revisar primero la version publicada:
 
 [https://gym-infinity.onrender.com](https://gym-infinity.onrender.com)
 
-Tambien puede ejecutar el proyecto localmente siguiendo los pasos descritos a continuacion.
+Tambien se puede ejecutar localmente siguiendo estos pasos.
 
-### 1. Preparar el servidor web
+### 1. Preparar el proyecto web
 
-Desde la raiz del proyecto:
+Desde la carpeta raiz del proyecto:
 
 ```powershell
 npm install
 ```
 
-Cree un archivo `.env` tomando como base `.env.example`:
+Crear el archivo `.env` usando `.env.example` como base:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Configure las credenciales administrativas dentro de `.env`:
+Credenciales de administrador usadas para la entrega:
 
 ```env
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=papitas12
 ```
 
-Inicie el servidor:
+Iniciar el servidor:
 
 ```powershell
 npm start
 ```
 
-Luego abra el navegador en:
+Abrir en el navegador:
 
 ```text
 http://localhost:3000
 ```
 
-### 2. Revisar la aplicacion Android
+### 2. Revisar la app Android
 
-La aplicacion Android se encuentra en la carpeta:
+La aplicacion Android esta en:
 
 ```text
 android-app/
 ```
 
-Pasos recomendados:
+Pasos:
 
-1. Abra la carpeta `android-app/` en Android Studio.
-2. Espere a que finalice la sincronizacion de Gradle.
-3. Seleccione un emulador Android, por ejemplo Pixel 7.
-4. Ejecute la configuracion `app`.
+1. Abrir `android-app/` en Android Studio.
+2. Esperar la sincronizacion de Gradle.
+3. Seleccionar un emulador Android.
+4. Ejecutar la configuracion `app`.
 
-La aplicacion Android esta configurada para cargar el servidor desplegado en Render:
+La app Android carga la pagina publicada:
 
 ```text
 https://gym-infinity.onrender.com
 ```
 
-Por este motivo, no es obligatorio tener el servidor local encendido para revisar la aplicacion Android.
+Por eso no es obligatorio tener el servidor local encendido para probarla.
 
-## Requisitos para ejecucion local
+## Datos de acceso
 
-- Node.js 18 o superior.
-- npm.
-- Android Studio, si se desea probar o compilar la aplicacion Android.
+Panel administrativo:
 
-## Scripts disponibles
+```text
+Usuario: admin
+Contrasena: papitas12
+```
 
-- `npm start`: inicia la aplicacion web.
-- `npm run dev`: inicia el servidor en modo desarrollo con recarga.
-- `npm run check`: revisa la sintaxis de los archivos JavaScript principales.
+## Comandos utiles
+
+- `npm start`: inicia la aplicacion.
+- `npm run dev`: inicia el servidor en modo desarrollo.
+- `npm run check`: revisa sintaxis de los archivos principales.
 - `npm test`: ejecuta las pruebas automatizadas.
-- `npm run test:watch`: ejecuta las pruebas en modo observacion.
+- `npm run test:watch`: ejecuta las pruebas mientras se trabaja.
 
-## Despliegue en Render
+## Despliegue
 
-El sitio se encuentra desplegado en Render con la siguiente URL publica:
-
-[https://gym-infinity.onrender.com](https://gym-infinity.onrender.com)
-
-Configuracion usada para el despliegue:
+El proyecto esta desplegado en Render con esta configuracion:
 
 ```text
 Runtime: Node
@@ -114,7 +115,7 @@ Start Command: npm start
 Branch: main
 ```
 
-Variables de entorno recomendadas:
+Variables de entorno:
 
 ```env
 NODE_ENV=production
@@ -124,35 +125,39 @@ ADMIN_PASSWORD=papitas12
 
 ## Base de datos
 
-El proyecto usa SQLite. En desarrollo local, la base de datos se genera en el archivo `gyminfinity.db`, el cual no se sube a GitHub para evitar publicar datos locales o privados.
+El proyecto usa SQLite. En local se genera el archivo `gyminfinity.db`, pero no se sube a GitHub para evitar publicar datos de prueba.
 
 Tablas principales:
 
-- `users`: informacion de clientes, planes y vencimiento de membresia.
-- `products`: productos disponibles y precios.
-- `orders`: pedidos, facturas, metodo de pago, estado y monto.
+- `users`: informacion de clientes y membresias.
+- `products`: productos disponibles.
+- `orders`: pedidos y facturas.
 
-## Estructura del proyecto
+## Estructura
 
-- `server.js`: servidor Express, rutas, sesiones, validaciones y controladores principales.
-- `db.js`: inicializacion y acceso a la base de datos SQLite.
-- `views/`: plantillas EJS de la web.
-- `public/css/style.css`: estilos principales del sitio.
-- `public/js/main.js`: funciones de interfaz del lado del cliente.
+- `server.js`: servidor, rutas y control principal.
+- `db.js`: conexion e inicializacion de SQLite.
+- `views/`: pantallas EJS.
+- `public/css/style.css`: estilos del sitio.
+- `public/js/main.js`: funciones del lado del cliente.
 - `android-app/`: proyecto Android Studio.
 - `__tests__/`: pruebas automatizadas.
 
-## Verificacion antes de entrega
+## Pendientes que se pueden mejorar
 
-Antes de subir cambios al repositorio, se recomienda ejecutar:
+- Conectar una pasarela de pago real.
+- Usar una base de datos externa para produccion.
+- Agregar mas reportes para el administrador.
+- Mejorar el seguimiento de clientes y membresias.
+- Ampliar las pruebas automatizadas.
+
+## Verificacion
+
+Antes de entregar o subir cambios se recomienda ejecutar:
 
 ```powershell
 npm run check
 npm test
 ```
 
-Estado de verificacion realizado:
-
-- Revision de sintaxis: correcta.
-- Pruebas automatizadas: correctas.
-- Compilacion Android debug: correcta.
+En la ultima revision ambos comandos se ejecutaron correctamente.

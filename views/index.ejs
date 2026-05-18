@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gyminfinity | Entrenamiento, nutrición y gestión profesional</title>
+    <title>Gyminfinity | Proyecto de gimnasio</title>
     <meta
       name="description"
-      content="Gyminfinity organiza tu experiencia fitness con registro guiado, área de cliente y panel administrativo seguro."
+      content="Proyecto Gyminfinity para organizar clientes, planes, rutinas, productos y pedidos de un gimnasio."
     />
     <link rel="stylesheet" href="/css/style.css" />
     <script defer src="/js/main.js"></script>
@@ -17,7 +17,7 @@
         <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
         <div>
           <span class="brand-kicker">Gyminfinity</span>
-          <p>Entrenamiento, nutrición y operación en una sola experiencia.</p>
+          <p>Proyecto para organizar mejor la informacion de un gimnasio.</p>
         </div>
       </a>
 
@@ -68,11 +68,11 @@
 
       <section id="hero" class="hero-section">
         <div class="hero-copy">
-          <span class="eyebrow">Operación fitness bien hecha</span>
-          <h1>Gyminfinity combina experiencia presencial con una base digital mucho más seria y ordenada.</h1>
+          <span class="eyebrow">Proyecto Gyminfinity</span>
+          <h1>Como equipo buscamos que el gimnasio tenga una pagina mas clara, ordenada y facil de revisar.</h1>
           <p>
-            Conservé la interfaz que ya veníamos construyendo, pero recuperé la identidad visual morado,
-            azul y fucsia para que el sitio se sienta otra vez más alineado con la marca.
+            En esta version organizamos el registro, los planes, las rutinas, la tienda y el acceso de clientes.
+            Todavia hay cosas por mejorar, pero la base ya permite mostrar el flujo principal.
           </p>
 
           <% if (viewer.isClient && viewer.user) { %>
@@ -101,12 +101,12 @@
               <span>de acceso inicial por registro</span>
             </article>
             <article class="metric-chip">
-              <strong>Panel vivo</strong>
-              <span>con control real de planes, pedidos y membresías</span>
+              <strong>Panel activo</strong>
+              <span>para revisar planes, pedidos y membresias</span>
             </article>
             <article class="metric-chip">
-              <strong>Imagen renovada</strong>
-              <span>con una línea visual más cercana a Gyminfinity</span>
+              <strong>Vista ordenada</strong>
+              <span>con una linea visual pensada para el gimnasio</span>
             </article>
           </div>
         </div>
@@ -148,7 +148,7 @@
           <aside id="signup" class="hero-card registration-card">
             <div class="card-heading">
               <span class="section-kicker">Registro guiado</span>
-              <h2>Activa tu acceso con información real y datos útiles para el equipo.</h2>
+              <h2>Registra tus datos para crear el acceso de cliente.</h2>
             </div>
 
             <form action="/signup" method="POST" class="form-shell">
@@ -248,27 +248,27 @@
       <section id="programs" class="section section-light">
         <div class="section-heading">
           <span class="section-kicker">Programas</span>
-          <h2>El sitio acompaña mejor la operación real del gimnasio y vuelve a tener una estética de marca más fuerte.</h2>
-          <p>Además del cambio de color, integré ilustraciones propias del proyecto para que cada bloque se vea más intencional.</p>
+          <h2>La pagina muestra las partes principales que necesita el gimnasio.</h2>
+          <p>Organizamos cada bloque para que cualquier companero pueda entender que hace el sistema y que falta por mejorar.</p>
         </div>
 
         <div class="feature-grid">
           <article class="feature-card">
             <img src="/images/hero-image.svg" alt="Visual de acceso privado y experiencia digital" class="feature-art" />
-            <h3>Acceso privado por sesión</h3>
-            <p>El área de cliente y el panel admin ya no dependen de enlaces inseguros ni claves visibles en la URL.</p>
+            <h3>Acceso privado</h3>
+            <p>El cliente y el administrador entran desde pantallas separadas con sus propios datos.</p>
           </article>
 
           <article class="feature-card">
             <img src="/images/training.svg" alt="Visual de entrenamiento y membresía" class="feature-art" />
-            <h3>Membresía con control real</h3>
-            <p>El acceso completo responde al estado de la membresía y no solo a una redirección superficial.</p>
+            <h3>Membresia organizada</h3>
+            <p>El sistema muestra el estado de la membresia y los dias restantes del cliente.</p>
           </article>
 
           <article class="feature-card">
             <img src="/images/product.svg" alt="Visual de catálogo y gestión centralizada" class="feature-art" />
-            <h3>Gestión centralizada</h3>
-            <p>Productos, rutinas, dietas, usuarios, pedidos y renovaciones viven en un panel más robusto.</p>
+            <h3>Informacion reunida</h3>
+            <p>Productos, rutinas, dietas, usuarios, pedidos y renovaciones quedan en un mismo panel.</p>
           </article>
         </div>
       </section>
@@ -276,8 +276,8 @@
       <section id="plans" class="section section-dark">
         <div class="section-heading">
           <span class="section-kicker">Planes</span>
-          <h2>Compara cada nivel sin perder contexto.</h2>
-          <p>La oferta comercial se mantiene desde administración y se refleja al instante con la nueva identidad visual.</p>
+          <h2>Planes claros para comparar las opciones del gimnasio.</h2>
+          <p>Estos planes se pueden cambiar desde administracion para mantener actualizada la informacion.</p>
         </div>
 
         <div class="tab-buttons" role="tablist" aria-label="Planes Gyminfinity">
@@ -318,17 +318,16 @@
       <section id="nutrition" class="section section-light">
         <div class="section-heading">
           <span class="section-kicker">Nutrición</span>
-          <h2>Contenido alimenticio más fácil de revisar y mantener.</h2>
-          <p>El equipo puede actualizar estos contenidos desde el dashboard sin editar manualmente las plantillas.</p>
+          <h2>Contenido alimenticio ordenado para revisar con facilidad.</h2>
+          <p>Las dietas se pueden ajustar desde el panel cuando necesitemos corregir o ampliar el contenido.</p>
         </div>
 
         <div class="section-showcase">
           <div class="section-showcase-copy">
             <span class="panel-eyebrow">Visual nutricional</span>
-            <h3>La parte alimenticia ahora también tiene un soporte gráfico coherente con la página.</h3>
+            <h3>La parte alimenticia tiene una vista simple para explicar mejor cada plan.</h3>
             <p>
-              Integré una ilustración propia del proyecto para que esta sección no dependa solo del texto y
-              se sienta alineada con el resto de la experiencia visual.
+              Agregamos una imagen de apoyo para que esta seccion no sea solo texto y se entienda mejor.
             </p>
           </div>
 
@@ -367,9 +366,9 @@
 
               <p><%= diet.description %></p>
               <ul class="detail-list">
-                <li>Estructura fácil de actualizar por parte del equipo de Gyminfinity.</li>
-                <li>Presentación limpia para que el cliente entienda rápido el enfoque.</li>
-                <li>Base lista para crecer con planes más personalizados.</li>
+                <li>Estructura facil de actualizar por el equipo.</li>
+                <li>Presentacion clara para que el cliente entienda el enfoque.</li>
+                <li>Base que despues se puede ampliar con planes mas personalizados.</li>
               </ul>
             </article>
           <% }) %>
@@ -421,8 +420,8 @@
       <section id="shop" class="section section-light">
         <div class="section-heading">
           <span class="section-kicker">Tienda</span>
-          <h2>El catálogo ya no está desconectado del proceso de compra.</h2>
-          <p>Los pedidos se relacionan con el cliente autenticado y se gestionan desde el panel con estados claros.</p>
+          <h2>La tienda queda conectada con el proceso de pedidos.</h2>
+          <p>Los pedidos se registran con el cliente y luego se pueden revisar desde el panel administrativo.</p>
         </div>
 
         <div class="card-grid">
@@ -453,8 +452,8 @@
       <section id="contact" class="section contact-section">
         <div class="section-heading">
           <span class="section-kicker">Contacto</span>
-          <h2>Un entorno más profesional también necesita una comunicación más clara.</h2>
-          <p>Usa estos canales como base mientras seguimos refinando la operación digital de Gyminfinity.</p>
+          <h2>Tambien dejamos una seccion de contacto para completar la presentacion.</h2>
+          <p>Estos canales quedan como referencia mientras seguimos mejorando la pagina y el flujo del proyecto.</p>
         </div>
 
         <div class="contact-grid">
@@ -475,7 +474,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>© <%= currentYear %> Gyminfinity. Plataforma preparada para crecer con más orden, control y presencia.</p>
+      <p>&copy; <%= currentYear %> Gyminfinity. Proyecto academico hecho para seguir mejorando.</p>
     </footer>
   </body>
 </html>
