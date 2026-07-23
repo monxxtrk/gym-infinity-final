@@ -182,14 +182,14 @@ function routes(db) {
         req.session.flash = { type: "error", text: "Credenciales incorrectas." };
         return res.redirect("/login");
       }
-      if (user.role !== "admin" && !user.access_granted) {
+      if (!["admin", "staff"].includes(user.role) && !user.access_granted) {
         req.session.flash = { type: "error", text: "Tu solicitud está pendiente de aprobación por administración." };
         return res.redirect("/login");
       }
       req.session.regenerate((err) => {
         if (err) return next(err);
         req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
-        res.redirect(user.role === "admin" ? "/admin" : "/mi-cuenta");
+        res.redirect(["admin", "staff"].includes(user.role) ? "/admin" : "/mi-cuenta");
       });
     } catch (err) {
       next(err);
@@ -211,7 +211,7 @@ function routes(db) {
         user = await get(db, "SELECT * FROM users WHERE email = ?", [adminEmail]);
       }
 
-      if (!user || user.role !== "admin" || !(await bcrypt.compare(password, user.password_hash || ""))) {
+      if (!user || !["admin", "staff"].includes(user.role) || !user.access_granted || !(await bcrypt.compare(password, user.password_hash || ""))) {
         req.session.flash = { type: "error", text: "Credenciales incorrectas." };
         return res.redirect("/admin-login");
       }
@@ -310,7 +310,7 @@ function routes(db) {
 
   router.get("/admin", requireAuth, async (req, res, next) => {
     try {
-      const [members, leads, attendance, stats, plans, routines, products, nutritionPlans, testimonials, payments, userAccounts, passwordRequests, auditLogs] = await Promise.all([
+      const [members, leads, attendance, stats, plans, routines, products, nutritionPlans, testimonials, payments, userAccounts, passwordRequests, auditLogs, teamAccounts] = await Promise.all([
         all(db, `SELECT members.*, memberships.name AS plan_name, memberships.price AS plan_price,
           memberships.duration_days,
           CAST(julianday(COALESCE(members.membership_end, date(members.membership_start, '+' || memberships.duration_days || ' days'))) - julianday('now') AS INTEGER) AS days_left
@@ -337,9 +337,10 @@ function routes(db) {
         all(db, "SELECT id, name, email, phone, goal, access_granted, created_at FROM users WHERE role = 'client' ORDER BY created_at DESC"),
         all(db, `SELECT password_reset_requests.*, users.name, users.email FROM password_reset_requests
           JOIN users ON users.id = password_reset_requests.user_id WHERE password_reset_requests.status = 'pendiente' ORDER BY created_at DESC`),
-        all(db, "SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 30")
+        all(db, "SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 30"),
+        all(db, "SELECT id, name, email, phone, role, access_granted, created_at FROM users WHERE role IN ('admin', 'staff') ORDER BY role, name")
       ]);
-      res.render("admin", { title: "Panel administrativo", members, leads, attendance, stats, plans, routines, products, nutritionPlans, testimonials, payments, userAccounts, passwordRequests, auditLogs });
+      res.render("admin", { title: "Panel administrativo", members, leads, attendance, stats, plans, routines, products, nutritionPlans, testimonials, payments, userAccounts, passwordRequests, auditLogs, teamAccounts });
     } catch (err) {
       next(err);
     }
@@ -350,6 +351,57 @@ function routes(db) {
       await run(db, "UPDATE testimonials SET approved = 1 WHERE id = ?", [Number(req.params.id)]);
       req.session.flash = { type: "success", text: "Comentario aprobado y publicado." };
       res.redirect("/admin#contenido");
+    } catch (err) { next(err); }
+  });
+
+  router.post("/admin/team", requireOwner, async (req, res, next) => {
+    try {
+      const name = clean(req.body.name);
+      const email = clean(req.body.email).toLowerCase();
+      const phone = clean(req.body.phone);
+      const password = String(req.body.password || "");
+      const role = req.body.role === "admin" ? "admin" : "staff";
+      if (!name || !emailRegex.test(email) || password.length < 10) {
+        req.session.flash = { type: "error", text: "Completa los datos. La contraseña debe tener al menos 10 caracteres." };
+        return res.redirect("/admin#equipo");
+      }
+      await run(db, `INSERT INTO users (name, email, phone, goal, password_hash, role, access_granted)
+        VALUES (?, ?, ?, 'Equipo de trabajo', ?, ?, 1)`, [name, email, phone, await bcrypt.hash(password, 12), role]);
+      req.session.flash = { type: "success", text: `Credenciales creadas para ${email}.` };
+      res.redirect("/admin#equipo");
+    } catch (err) {
+      if (err.message.includes("UNIQUE")) {
+        req.session.flash = { type: "error", text: "Ese correo ya está registrado." };
+        return res.redirect("/admin#equipo");
+      }
+      next(err);
+    }
+  });
+
+  router.post("/admin/team/:id/status", requireOwner, async (req, res, next) => {
+    try {
+      const target = await get(db, "SELECT id, email FROM users WHERE id = ? AND role IN ('admin', 'staff')", [Number(req.params.id)]);
+      const configuredAdmin = String(process.env.ADMIN_EMAIL || "").toLowerCase();
+      if (!target || target.id === req.session.user.id || target.email.toLowerCase() === configuredAdmin) {
+        req.session.flash = { type: "error", text: "La cuenta administradora principal no puede suspenderse." };
+        return res.redirect("/admin#equipo");
+      }
+      await run(db, "UPDATE users SET access_granted = ? WHERE id = ?", [req.body.access_granted === "1" ? 1 : 0, target.id]);
+      req.session.flash = { type: "success", text: "Estado de la cuenta actualizado." };
+      res.redirect("/admin#equipo");
+    } catch (err) { next(err); }
+  });
+
+  router.post("/admin/team/:id/password", requireOwner, async (req, res, next) => {
+    try {
+      const password = String(req.body.password || "");
+      if (password.length < 10) {
+        req.session.flash = { type: "error", text: "La nueva contraseña debe tener al menos 10 caracteres." };
+        return res.redirect("/admin#equipo");
+      }
+      await run(db, "UPDATE users SET password_hash = ? WHERE id = ? AND role IN ('admin', 'staff')", [await bcrypt.hash(password, 12), Number(req.params.id)]);
+      req.session.flash = { type: "success", text: "Contraseña temporal actualizada. Compártela por un canal seguro." };
+      res.redirect("/admin#equipo");
     } catch (err) { next(err); }
   });
 
@@ -762,9 +814,16 @@ function routes(db) {
 }
 
 function requireAuth(req, res, next) {
-  if (req.session.user && req.session.user.role === "admin") return next();
+  if (req.session.user && ["admin", "staff"].includes(req.session.user.role)) return next();
   req.session.flash = { type: "error", text: "Inicia sesión como administradora para entrar al panel." };
   res.redirect("/admin-login");
+}
+
+function requireOwner(req, res, next) {
+  const configuredAdmin = String(process.env.ADMIN_EMAIL || "admin@gyminfinity.test").toLowerCase();
+  if (req.session.user && req.session.user.role === "admin" && req.session.user.email.toLowerCase() === configuredAdmin) return next();
+  req.session.flash = { type: "error", text: "Solo el administrador principal puede gestionar credenciales del equipo." };
+  res.redirect("/admin");
 }
 
 function requireLogin(req, res, next) {

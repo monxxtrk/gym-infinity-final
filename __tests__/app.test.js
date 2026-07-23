@@ -173,4 +173,27 @@ describe("Gym Infinity web app", () => {
     const approvedHome = await request(app).get("/");
     expect(approvedHome.text).toContain("Comentario Pendiente");
   });
+
+  test("lets the primary administrator create worker credentials", async () => {
+    const admin = request.agent(app);
+    await admin.post("/admin-login").type("form").send({ email: "admin@gyminfinity.test", password: "Admin12345" });
+    const created = await admin.post("/admin/team").type("form").send({
+      name: "Entrenadora Demo",
+      email: "equipo@example.com",
+      phone: "3005550101",
+      role: "staff",
+      password: "TemporalSegura123"
+    });
+    expect(created.headers.location).toBe("/admin#equipo");
+
+    const worker = request.agent(app);
+    const login = await worker.post("/admin-login").type("form").send({
+      email: "equipo@example.com",
+      password: "TemporalSegura123"
+    });
+    expect(login.headers.location).toBe("/admin");
+    const dashboard = await worker.get("/admin");
+    expect(dashboard.status).toBe(200);
+    expect(dashboard.text).not.toContain("Crear credenciales");
+  });
 });

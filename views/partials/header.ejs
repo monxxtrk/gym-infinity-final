@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css?v=20260723-12">
+  <link rel="stylesheet" href="/css/styles.css?v=20260723-13">
   <script defer src="/js/main.js"></script>
 </head>
 <body>
@@ -28,7 +28,7 @@
         <a href="/#comentarios">Comentarios</a>
         <a href="/#contacto">Valoración</a>
         <% if (currentUser) { %>
-          <a class="panel-link" href="<%= currentUser.role === "admin" ? "/admin" : "/mi-cuenta" %>">Panel</a>
+          <a class="panel-link" href="<%= ["admin", "staff"].includes(currentUser.role) ? "/admin" : "/mi-cuenta" %>">Panel</a>
           <form action="/logout" method="post">
             <button class="logout-button" type="submit">Salir <span>→</span></button>
           </form>
