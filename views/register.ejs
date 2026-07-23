@@ -1,25 +1,36 @@
 <%- include("partials/header") %>
 <section class="auth-page">
-  <form class="form-panel auth-card" action="/registro" method="post">
-    <p class="eyebrow">Nueva cuenta</p>
-    <h1>Crear cuenta</h1>
-    <p class="auth-copy">Registrate para entrar a tienda y guardar tu proceso en Gym Infinity.</p>
-    <label>Nombre<input required name="name" maxlength="80" autocomplete="name"></label>
-    <label>Correo<input required type="email" name="email" maxlength="120" autocomplete="email"></label>
-    <label>Teléfono<input required name="phone" minlength="7" maxlength="30" autocomplete="tel"></label>
-    <label>Objetivo
-      <select required name="goal">
-        <option value="">Seleccionar</option>
-        <option>Ganar fuerza</option>
-        <option>Bajar grasa</option>
-        <option>Aumentar masa muscular</option>
-        <option>Mejorar condición</option>
-      </select>
+  <form class="form-panel auth-card register-card" action="/registro" method="post">
+    <header class="register-heading">
+      <p class="eyebrow">Nueva cuenta</p>
+      <h1>Comienza tu proceso</h1>
+      <p class="auth-copy">Crea tu perfil para acceder a la tienda, solicitar tu plan y guardar tu progreso en Gym Infinity.</p>
+    </header>
+    <div class="register-fields">
+      <label>Nombre completo<input required name="name" maxlength="80" autocomplete="name" placeholder="Ej.: Daniel Arriero"></label>
+      <label>Correo electrónico<input required type="email" name="email" maxlength="120" autocomplete="email" placeholder="nombre@correo.com"></label>
+      <div class="register-row">
+        <label>Teléfono<input required name="phone" minlength="7" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="+57 300 000 0000"></label>
+        <label>Objetivo
+          <select required name="goal">
+            <option value="">Selecciona una opción</option>
+            <option>Ganar fuerza</option>
+            <option>Bajar grasa</option>
+            <option>Aumentar masa muscular</option>
+            <option>Mejorar condición</option>
+          </select>
+        </label>
+      </div>
+      <label>Contraseña<input required type="password" name="password" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"><small class="field-hint">Combina letras, números y una clave que no utilices en otros sitios.</small></label>
+    </div>
+    <label class="privacy-consent">
+      <input required type="checkbox" name="privacy_consent" value="1">
+      <span>Acepto la <a href="/privacidad">política de privacidad</a> y los <a href="/terminos">términos y condiciones</a>.</span>
     </label>
-    <label>Contraseña<input required type="password" name="password" minlength="8" autocomplete="new-password"></label>
-    <label class="check-label"><input required type="checkbox" name="privacy_consent" value="1"> Acepto la <a href="/privacidad">política de privacidad</a> y los <a href="/terminos">términos</a>.</label>
-    <button class="button primary" type="submit">Crear cuenta</button>
-    <a class="button ghost" href="/login">Ya tengo cuenta</a>
+    <div class="register-actions">
+      <button class="button primary" type="submit">Crear mi cuenta</button>
+      <a class="button auth-secondary" href="/login">Ya tengo una cuenta</a>
+    </div>
   </form>
 </section>
 <%- include("partials/footer") %>
