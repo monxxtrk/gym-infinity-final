@@ -1,0 +1,34 @@
+<%- include("partials/header") %>
+<section class="page-hero compact nutrition-hero">
+  <p class="eyebrow">Alimentación</p>
+  <h1>Planes para entrenar con energía</h1>
+</section>
+<section class="section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Guía nutricional</p>
+      <h2>Comidas simples para cada objetivo</h2>
+    </div>
+    <a href="/mi-cuenta">Mi cuenta</a>
+  </div>
+  <div class="nutrition-grid">
+    <% nutritionPlans.forEach((plan) => { %>
+      <article class="nutrition-card">
+        <img src="<%= plan.image_url %>" alt="<%= plan.title %>" loading="lazy">
+        <div>
+          <div class="card-badges"><span class="pill"><%= plan.goal %></span><span class="pill access-pill <%= plan.access_level %>"><%= plan.access_level === "premium" ? "Premium" : "Gratis" %></span></div>
+          <h2><%= plan.title %></h2>
+          <p class="price"><%= plan.calories %></p>
+          <p><%= plan.description %></p>
+          <ul class="module-list">
+            <% plan.meals.split("|").forEach((meal) => { %>
+              <li><%= meal.trim() %></li>
+            <% }) %>
+          </ul>
+          <a class="button primary full" href="/#contacto">Pedir asesoria</a>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<%- include("partials/footer") %>

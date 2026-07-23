@@ -1,163 +1,103 @@
-# Gyminfinity
+# Gym Infinity Final
 
-Gyminfinity es un proyecto academico pensado para organizar la informacion principal de un gimnasio. Como equipo buscamos que el sistema permita registrar clientes, revisar planes, manejar productos, consultar rutinas, administrar dietas y llevar un control basico de pedidos y facturacion.
+Plataforma web profesional para administrar y presentar Gym Infinity. Reúne el sitio comercial, las cuentas de clientes y un panel administrativo para controlar accesos, membresías, pagos, comprobantes, asistencia, rutinas, alimentación, productos, solicitudes y comentarios.
 
-El proyecto todavia se puede seguir mejorando, pero ya cuenta con una base funcional para mostrar la idea, probar el flujo completo y explicar como se podria usar en un gimnasio real.
+## Proyecto en línea
 
-## Proyecto en linea
+La aplicación está preparada para ejecutarse en Render:
 
-La version publicada se puede revisar aqui:
+**[Abrir Gym Infinity](https://gym-infinity.onrender.com)**
 
-[https://gym-infinity.onrender.com](https://gym-infinity.onrender.com)
+El primer acceso puede tardar unos segundos mientras el servicio alojado inicia.
 
-Nota: Render esta usando el plan gratuito. Si la pagina tarda en abrir, es normal; el servicio puede tardar unos segundos en iniciar cuando lleva un rato sin visitas.
+## Funciones principales
 
-## Que incluye el proyecto
+- Sitio público responsive con identidad visual Gym Infinity.
+- Cuentas de clientes sujetas a aprobación administrativa.
+- Panel con vigencias, ingresos, pagos, facturación y asistencia.
+- CRUD completo de rutinas, productos y alimentación.
+- Contenido gratuito y premium.
+- Moderación previa de comentarios.
+- Cambio y solicitud de recuperación de contraseña.
+- Exportaciones CSV de clientes y pagos.
+- Comprobantes imprimibles o guardables como PDF.
+- Auditoría de acciones administrativas.
+- Protección CSRF, Helmet, rate limiting, sesiones HTTP-only y contraseñas con bcrypt.
+- Política de privacidad, términos y aviso de salud.
+- Copias de seguridad SQLite.
+- Configuración de despliegue en Render con disco persistente.
 
-- Aplicacion web con Node.js y Express.
-- Vistas con EJS.
-- Base de datos SQLite.
-- Panel administrativo con inicio de sesion.
-- Area privada para clientes.
-- Gestion de productos, planes, rutinas, dietas, usuarios, pedidos y facturas.
-- Aplicacion Android Studio dentro de `android-app/`.
-- Pruebas automatizadas con Jest y Supertest.
+## Desarrollo
 
-## Guia para revisar
-
-Profesor, companeros o evaluadores pueden revisar primero la version publicada:
-
-[https://gym-infinity.onrender.com](https://gym-infinity.onrender.com)
-
-Tambien se puede ejecutar localmente siguiendo estos pasos.
-
-### 1. Preparar el proyecto web
-
-Desde la carpeta raiz del proyecto:
-
-```powershell
-npm install
-```
-
-Crear el archivo `.env` usando `.env.example` como base:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Credenciales de administrador usadas para la entrega:
-
-```env
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=papitas12
-```
-
-Iniciar el servidor:
-
-```powershell
+```bash
+npm ci
+copy .env.example .env
 npm start
 ```
 
-Abrir en el navegador:
+Abrir `http://localhost:3000`.
 
-```text
-http://localhost:3000
-```
+## Tecnologías
 
-### 2. Revisar la app Android
+| Tecnología | Función |
+|---|---|
+| HTML generado con EJS | Construye las páginas y reutiliza componentes como la cabecera y el pie de página. |
+| CSS3 | Controla la identidad morada y rosada, las tarjetas, animaciones y adaptación móvil. |
+| JavaScript | Maneja el menú móvil, confirmaciones, formularios y protección CSRF en el navegador. |
+| Node.js | Ejecuta la aplicación en el servidor. |
+| Express | Gestiona rutas, sesiones, formularios, seguridad y respuestas HTTP. |
+| SQLite | Guarda usuarios, membresías, pagos, contenido, solicitudes y auditoría. |
+| JSON | Define dependencias y comandos mediante `package.json` y `package-lock.json`. |
+| EJS | Renderiza datos dinámicos del servidor dentro de las vistas HTML. |
+| Jest y Supertest | Comprueban automáticamente los flujos principales. |
+| Render YAML | Describe el servicio, las variables y el almacenamiento persistente para producción. |
 
-La aplicacion Android esta en:
+## Estructura del repositorio
 
-```text
-android-app/
-```
+| Ruta | Responsabilidad |
+|---|---|
+| `server.js` | Inicia el servidor y realiza un cierre seguro. |
+| `src/app.js` | Configura Express, sesiones, seguridad, CSRF y límites de solicitudes. |
+| `src/routes.js` | Contiene las rutas públicas, de clientes y administrativas. |
+| `src/database.js` | Crea, migra y consulta la base de datos SQLite. |
+| `views/` | Contiene las páginas EJS que se convierten en HTML. |
+| `views/partials/` | Guarda la cabecera y el pie reutilizables. |
+| `public/css/styles.css` | Define toda la línea visual y el diseño responsive. |
+| `public/js/main.js` | Añade interacción y comportamiento en el navegador. |
+| `public/images/` | Guarda el logo y la imagen principal de la marca. |
+| `__tests__/` | Valida automáticamente registro, acceso, administración y comentarios. |
+| `tools/backup.js` | Genera copias de seguridad de SQLite. |
+| `.env.example` | Documenta las variables necesarias sin publicar secretos. |
+| `render.yaml` | Configura el despliegue alojado en Render. |
 
-Pasos:
+## Panel administrativo
 
-1. Abrir `android-app/` en Android Studio.
-2. Esperar la sincronizacion de Gradle.
-3. Seleccionar un emulador Android.
-4. Ejecutar la configuracion `app`.
+El administrador puede aprobar cuentas aunque no exista un pago, modificar precios y planes, registrar clientes, controlar vigencias, facturar, imprimir comprobantes, exportar información, registrar asistencia y administrar rutinas, alimentación, productos y comentarios. También dispone de recuperación de acceso y registro de actividad.
 
-La app Android carga la pagina publicada:
+## Verificación
 
-```text
-https://gym-infinity.onrender.com
-```
-
-Por eso no es obligatorio tener el servidor local encendido para probarla.
-
-## Datos de acceso
-
-Panel administrativo:
-
-```text
-Usuario: admin
-Contrasena: papitas12
-```
-
-## Comandos utiles
-
-- `npm start`: inicia la aplicacion.
-- `npm run dev`: inicia el servidor en modo desarrollo.
-- `npm run check`: revisa sintaxis de los archivos principales.
-- `npm test`: ejecuta las pruebas automatizadas.
-- `npm run test:watch`: ejecuta las pruebas mientras se trabaja.
-
-## Despliegue
-
-El proyecto esta desplegado en Render con esta configuracion:
-
-```text
-Runtime: Node
-Build Command: npm install
-Start Command: npm start
-Branch: main
-```
-
-Variables de entorno:
-
-```env
-NODE_ENV=production
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=papitas12
-```
-
-## Base de datos
-
-El proyecto usa SQLite. En local se genera el archivo `gyminfinity.db`, pero no se sube a GitHub para evitar publicar datos de prueba.
-
-Tablas principales:
-
-- `users`: informacion de clientes y membresias.
-- `products`: productos disponibles.
-- `orders`: pedidos y facturas.
-
-## Estructura
-
-- `server.js`: servidor, rutas y control principal.
-- `db.js`: conexion e inicializacion de SQLite.
-- `views/`: pantallas EJS.
-- `public/css/style.css`: estilos del sitio.
-- `public/js/main.js`: funciones del lado del cliente.
-- `android-app/`: proyecto Android Studio.
-- `__tests__/`: pruebas automatizadas.
-
-## Pendientes que se pueden mejorar
-
-- Conectar una pasarela de pago real.
-- Usar una base de datos externa para produccion.
-- Agregar mas reportes para el administrador.
-- Mejorar el seguimiento de clientes y membresias.
-- Ampliar las pruebas automatizadas.
-
-## Verificacion
-
-Antes de entregar o subir cambios se recomienda ejecutar:
-
-```powershell
+```bash
 npm run check
-npm test
+npm run backup
 ```
 
-En la ultima revision ambos comandos se ejecutaron correctamente.
+## Producción
+
+Configura como mínimo:
+
+- `NODE_ENV=production`
+- `SESSION_SECRET` con 32 caracteres o más
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD` única y segura
+- `APP_URL`
+- datos comerciales reales
+
+Nunca publiques `.env`, bases `.db`, archivos WAL, sesiones o copias de seguridad. El archivo `render.yaml` monta `/var/data` como almacenamiento persistente.
+
+## Integraciones externas
+
+Las variables SMTP, proveedor de pagos y WhatsApp están documentadas en `.env.example`, pero permanecen desactivadas hasta proporcionar cuentas y credenciales reales. No se deben simular cobros ni mensajes.
+
+## Revisión legal
+
+Los documentos incluidos son una base operativa informativa para Colombia. Antes de cobrar públicamente deben completarse con razón social, NIT, dirección, contacto y políticas comerciales reales, y ser revisados por asesoría jurídica.

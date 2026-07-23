@@ -1,0 +1,36 @@
+<%- include("partials/header") %>
+<section class="page-hero compact">
+  <p class="eyebrow">Biblioteca de rutinas</p>
+  <h1>Programas por nivel y objetivo</h1>
+</section>
+<section class="section">
+  <form class="filters" action="/rutinas" method="get">
+    <select name="level">
+      <option value="">Todos los niveles</option>
+      <% ["Principiante", "Intermedio", "Avanzado", "Todos"].forEach((level) => { %>
+        <option <%= filters.level === level ? "selected" : "" %>><%= level %></option>
+      <% }) %>
+    </select>
+    <input name="focus" value="<%= filters.focus %>" placeholder="Buscar por enfoque">
+    <button class="button primary" type="submit">Filtrar</button>
+  </form>
+  <div class="routine-grid wide">
+    <% routines.forEach((routine) => { %>
+      <article class="routine-card">
+        <img src="<%= routine.image_url %>" alt="<%= routine.title %>" loading="lazy">
+        <div>
+          <div class="card-badges"><span class="pill"><%= routine.level %></span><span class="pill access-pill <%= routine.access_level %>"><%= routine.access_level === "premium" ? "Premium" : "Gratis" %></span></div>
+          <h2><a href="/rutinas/<%= routine.id %>"><%= routine.title %></a></h2>
+          <p><%= routine.description %></p>
+          <p class="exercise-list"><%= routine.exercises %></p>
+          <dl>
+            <div><dt>Enfoque</dt><dd><%= routine.focus %></dd></div>
+            <div><dt>Duración</dt><dd><%= routine.duration %></dd></div>
+          </dl>
+          <a class="button ghost full" href="/rutinas/<%= routine.id %>">Abrir módulo</a>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<%- include("partials/footer") %>

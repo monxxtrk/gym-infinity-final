@@ -1,580 +1,161 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard administrativo | Gyminfinity</title>
-    <meta
-      name="description"
-      content="Panel administrativo de Gyminfinity para gestionar usuarios, membresías, pedidos y catálogo."
-    />
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <a href="/" class="brand">
-        <img src="/images/logo.svg" alt="Logo de Gyminfinity" class="logo" />
-        <div>
-          <span class="brand-kicker">Dashboard Gyminfinity</span>
-          <p>Panel para revisar y ordenar la informacion principal del gimnasio.</p>
-        </div>
-      </a>
+<%- include("partials/header") %>
+<section class="dashboard admin-dashboard">
+  <div class="dashboard-heading">
+    <div><p class="eyebrow">Centro de operaciones</p><h1>Gestión Gym Infinity</h1><p class="dashboard-copy">Clientes, membresías y caja en una sola vista.</p></div>
+    <form action="/logout" method="post"><button class="button ghost" type="submit">Cerrar sesión</button></form>
+  </div>
 
-      <nav class="nav-bar nav-bar-static" aria-label="Navegación administrativa">
-        <a href="#products">Productos</a>
-        <a href="#plans">Planes</a>
-        <a href="#workouts">Rutinas</a>
-        <a href="#diets">Dietas</a>
-        <a href="#users">Usuarios</a>
-        <a href="#orders">Pedidos</a>
-        <a href="/">Ver sitio</a>
-        <form action="/logout" method="POST" class="inline-action">
-          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-          <button type="submit" class="btn btn-ghost nav-link">Cerrar sesión</button>
+  <nav class="admin-tabs" aria-label="Secciones del panel">
+    <a href="#resumen">Resumen</a><a href="#solicitudes">Solicitudes</a><a href="#facturacion">Facturación</a><a href="#clientes">Clientes</a><a href="#planes">Planes</a><a href="#asistencia">Asistencia</a><a href="#contenido">Contenido</a>
+  </nav>
+
+  <div class="stats-grid admin-stats" id="resumen">
+    <article><span>Ingresos del mes</span><strong>$<%= Number(stats.monthly_revenue).toLocaleString("es-CO") %></strong><small>Pagos confirmados</small></article>
+    <article><span>Membresías activas</span><strong><%= stats.active_members %></strong><small>Con vigencia actual</small></article>
+    <article class="warning-stat"><span>Vencen en 7 días</span><strong><%= stats.expiring_members %></strong><small>Requieren seguimiento</small></article>
+    <article class="danger-stat"><span>Vencidas</span><strong><%= stats.expired_members %></strong><small>Por renovar</small></article>
+  </div>
+  <div class="admin-quick-actions">
+    <a class="button primary" href="/admin/export/members.csv">Exportar clientes</a>
+    <a class="button primary" href="/admin/export/payments.csv">Exportar pagos</a>
+    <a class="button ghost" href="#contenido">Moderar contenido</a>
+  </div>
+  <% if (passwordRequests.length) { %>
+    <section class="admin-alert">
+      <strong><%= passwordRequests.length %> solicitudes de recuperación pendientes</strong>
+      <% passwordRequests.forEach((item) => { %>
+        <form class="recovery-admin-form" action="/admin/password-requests/<%= item.id %>/resolve" method="post">
+          <span><strong><%= item.name %></strong> · <%= item.email %></span>
+          <input required minlength="10" name="temporary_password" type="password" autocomplete="new-password" placeholder="Contraseña temporal (mínimo 10 caracteres)">
+          <button class="button primary" type="submit">Restablecer acceso</button>
         </form>
-      </nav>
-    </header>
+      <% }) %>
+    </section>
+  <% } %>
 
-    <main class="dashboard-shell">
-      <% if (flash) { %>
-        <section class="status-messages">
-          <div class="alert alert-<%= flash.type %>"><%= flash.text %></div>
-        </section>
-      <% } %>
-
-      <section class="dashboard-hero section section-light">
-        <div class="section-heading">
-          <span class="section-kicker">Panel administrativo</span>
-          <h1>Este panel nos ayuda a tener mas orden con usuarios, productos, planes y pedidos.</h1>
-          <p>
-            Desde aqui podemos revisar la informacion del gimnasio, hacer cambios basicos y detectar
-            que partes debemos seguir mejorando como equipo.
-          </p>
-        </div>
-
-        <div class="dashboard-grid">
-          <article class="metric-card">
-            <span class="metric-label">Usuarios totales</span>
-            <strong><%= metrics.totalUsers %></strong>
-            <p><%= metrics.activeUsers %> activos · <%= metrics.expiredUsers %> vencidos</p>
-          </article>
-
-          <article class="metric-card">
-            <span class="metric-label">Pedidos</span>
-            <strong><%= metrics.totalOrders %></strong>
-            <p><%= metrics.pendingOrders %> pendientes por revisar</p>
-          </article>
-
-          <article class="metric-card">
-            <span class="metric-label">Productos</span>
-            <strong><%= metrics.totalProducts %></strong>
-            <p>Catalogo editable desde el panel</p>
-          </article>
-        </div>
+  <section class="admin-section" id="solicitudes">
+    <div class="section-heading"><div><p class="eyebrow">Admisiones</p><h2>Solicitudes y accesos</h2></div><p>Autoriza el acceso sin depender de que exista un pago registrado.</p></div>
+    <div class="admin-grid">
+      <section class="table-panel"><div class="panel-title"><h3>Cuentas registradas</h3><span class="status ok"><%= userAccounts.length %></span></div>
+        <div class="request-list"><% userAccounts.forEach((user) => { %><article class="request-card">
+          <div><strong><%= user.name %></strong><span><%= user.email %> · <%= user.phone || "Sin teléfono" %></span><small><%= user.goal || "Objetivo por definir" %></small></div>
+          <span class="status <%= user.access_granted ? "ok" : "soon" %>"><%= user.access_granted ? "Acceso activo" : "Pendiente" %></span>
+          <form action="/admin/users/<%= user.id %>/access" method="post"><input type="hidden" name="access_granted" value="<%= user.access_granted ? "0" : "1" %>"><button class="button <%= user.access_granted ? "ghost" : "primary" %>" type="submit"><%= user.access_granted ? "Suspender" : "Dar acceso" %></button></form>
+        </article><% }) %><% if (!userAccounts.length) { %><p class="empty-state">No hay cuentas pendientes.</p><% } %></div>
       </section>
-
-      <nav class="dashboard-nav" aria-label="Secciones del dashboard">
-        <a href="#products">Productos</a>
-        <a href="#plans">Planes</a>
-        <a href="#workouts">Rutinas</a>
-        <a href="#diets">Dietas</a>
-        <a href="#users">Usuarios</a>
-        <a href="#orders">Pedidos</a>
-      </nav>
-
-      <section id="products" class="section section-dark">
-        <div class="section-heading">
-          <span class="section-kicker">Productos</span>
-          <h2>Productos organizados para revisar y actualizar cuando sea necesario.</h2>
-        </div>
-
-        <div class="section-grid">
-          <article class="admin-card">
-            <div class="card-heading">
-              <span class="section-kicker">Nuevo producto</span>
-              <h3>Agregar producto</h3>
-            </div>
-
-            <form action="/admin/products/add" method="POST" class="form-shell">
-              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-
-              <div class="field">
-                <label for="product-name">Nombre</label>
-                <input id="product-name" type="text" name="name" maxlength="80" required />
-              </div>
-
-              <div class="field-grid">
-                <div class="field">
-                  <label for="product-price">Precio</label>
-                  <input id="product-price" type="text" name="price" maxlength="40" required />
-                </div>
-
-                <div class="field">
-                  <label for="product-image">Imagen (URL)</label>
-                  <input id="product-image" type="url" name="imageUrl" maxlength="300" />
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="product-description">Descripción</label>
-                <textarea id="product-description" name="description" rows="5" maxlength="400" required></textarea>
-              </div>
-
-              <button type="submit" class="btn btn-primary btn-block">Guardar producto</button>
-            </form>
-          </article>
-
-          <article class="table-card">
-            <div class="card-heading">
-              <span class="section-kicker">Catálogo actual</span>
-              <h3>Productos disponibles</h3>
-            </div>
-
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Descripción</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% products.forEach((product) => { %>
-                    <tr>
-                      <td data-label="ID"><%= product.id %></td>
-                      <td data-label="Producto">
-                        <div class="table-media">
-                          <img
-                            src="<%= product.image_url || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80' %>"
-                            alt="<%= product.name %>"
-                            class="product-thumb"
-                          />
-                          <strong><%= product.name %></strong>
-                        </div>
-                      </td>
-                      <td data-label="Precio"><%= product.price %></td>
-                      <td data-label="Descripcion"><%= product.description %></td>
-                      <td class="action-cell" data-label="Editar">
-                        <details class="edit-panel">
-                          <summary>Editar</summary>
-                          <form action="/admin/products/update" method="POST" class="inline-form">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= product.id %>" />
-                          <input type="text" name="name" value="<%= product.name %>" maxlength="80" required />
-                          <input type="text" name="price" value="<%= product.price %>" maxlength="40" required />
-                          <input type="url" name="imageUrl" value="<%= product.image_url %>" maxlength="300" />
-                          <textarea name="description" rows="3" maxlength="400" required><%= product.description %></textarea>
-                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                          </form>
-                        </details>
-                      </td>
-                      <td class="action-cell" data-label="Eliminar">
-                        <form action="/admin/products/delete" method="POST" class="inline-form inline-form-danger">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= product.id %>" />
-                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
+      <section class="table-panel"><div class="panel-title"><h3>Contactos y valoraciones</h3><span class="status ok"><%= leads.length %></span></div>
+        <div class="request-list"><% leads.forEach((lead) => { %><article class="request-card">
+          <div><strong><%= lead.name %></strong><span><%= lead.email %> · <%= lead.phone %></span><small><%= lead.goal %><%= lead.message ? ` · ${lead.message}` : "" %></small></div>
+          <span class="status <%= lead.status === "aprobado" ? "ok" : lead.status === "descartado" ? "expired" : "soon" %>"><%= lead.status %></span>
+          <form action="/admin/leads/<%= lead.id %>/status" method="post"><select name="status"><option value="pendiente" <%= lead.status === "pendiente" ? "selected" : "" %>>Pendiente</option><option value="contactado" <%= lead.status === "contactado" ? "selected" : "" %>>Contactado</option><option value="aprobado" <%= lead.status === "aprobado" ? "selected" : "" %>>Aprobado</option><option value="descartado" <%= lead.status === "descartado" ? "selected" : "" %>>Descartado</option></select><button class="icon-button" type="submit">Guardar</button></form>
+        </article><% }) %></div>
       </section>
+    </div>
+  </section>
 
-      <section id="plans" class="section section-light">
-        <div class="section-heading">
-          <span class="section-kicker">Planes</span>
-          <h2>Planes listos para ajustar segun lo que necesite el gimnasio.</h2>
-        </div>
-
-        <div class="section-grid">
-          <article class="admin-card">
-            <div class="card-heading">
-              <span class="section-kicker">Nuevo plan</span>
-              <h3>Agregar plan</h3>
-            </div>
-
-            <form action="/admin/plans/add" method="POST" class="form-shell">
-              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-
-              <div class="field">
-                <label for="plan-name">Nombre</label>
-                <input id="plan-name" type="text" name="name" maxlength="80" required />
-              </div>
-
-              <div class="field">
-                <label for="plan-price">Precio</label>
-                <input id="plan-price" type="text" name="price" maxlength="40" required />
-              </div>
-
-              <div class="field">
-                <label for="plan-features">Descripción</label>
-                <textarea id="plan-features" name="features" rows="5" maxlength="400" required></textarea>
-              </div>
-
-              <button type="submit" class="btn btn-primary btn-block">Guardar plan</button>
-            </form>
-          </article>
-
-          <article class="table-card">
-            <div class="card-heading">
-              <span class="section-kicker">Planes activos</span>
-              <h3>Oferta comercial</h3>
-            </div>
-
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Plan</th>
-                    <th>Precio</th>
-                    <th>Descripción</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% plans.forEach((plan) => { %>
-                    <tr>
-                      <td data-label="ID"><%= plan.id %></td>
-                      <td data-label="Plan"><strong><%= plan.name %></strong></td>
-                      <td data-label="Precio"><%= plan.price %></td>
-                      <td data-label="Descripcion"><%= plan.features %></td>
-                      <td class="action-cell" data-label="Editar">
-                        <details class="edit-panel">
-                          <summary>Editar</summary>
-                          <form action="/admin/plans/update" method="POST" class="inline-form">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= plan.id %>" />
-                          <input type="text" name="name" value="<%= plan.name %>" maxlength="80" required />
-                          <input type="text" name="price" value="<%= plan.price %>" maxlength="40" required />
-                          <textarea name="features" rows="3" maxlength="400" required><%= plan.features %></textarea>
-                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                          </form>
-                        </details>
-                      </td>
-                      <td class="action-cell" data-label="Eliminar">
-                        <form action="/admin/plans/delete" method="POST" class="inline-form inline-form-danger">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= plan.id %>" />
-                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
+  <section class="admin-section" id="facturacion">
+    <div class="section-heading"><div><p class="eyebrow">Caja y membresías</p><h2>Facturación y pagos</h2></div><p>Registra pagos y renueva automáticamente la vigencia.</p></div>
+    <div class="admin-grid billing-grid">
+      <form class="form-panel accent-panel" action="/admin/payments" method="post">
+        <h3>Registrar un pago</h3>
+        <label>Cliente<select required name="member_id"><option value="">Seleccionar cliente</option><% members.forEach((member) => { %><option value="<%= member.id %>"><%= member.name %> · <%= member.plan_name %></option><% }) %></select></label>
+        <div class="form-row"><label>Valor<input required type="number" min="1" name="amount" placeholder="119000"></label><label>Fecha inicial<input required type="date" name="period_start" value="<%= new Date().toISOString().slice(0, 10) %>"></label></div>
+        <label>Método<select required name="payment_method"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Nequi</option><option>Daviplata</option></select></label>
+        <label>Referencia<input name="reference" maxlength="80" placeholder="Número de transacción (opcional)"></label>
+        <label>Nota<textarea name="notes" rows="2" maxlength="300" placeholder="Observación interna"></textarea></label>
+        <button class="button primary" type="submit">Confirmar pago y generar comprobante</button>
+      </form>
+      <section class="table-panel">
+        <div class="panel-title"><div><p class="eyebrow">Últimos movimientos</p><h3>Historial de pagos</h3></div><span class="status ok"><%= payments.length %> registros</span></div>
+        <div class="table-scroll"><table><thead><tr><th>Comprobante</th><th>Cliente</th><th>Período</th><th>Método</th><th>Valor</th></tr></thead><tbody>
+          <% payments.forEach((payment) => { %><tr><td><a class="text-link" href="/admin/invoices/<%= payment.invoice_id %>"><strong><%= payment.invoice_number %></strong></a><small><%= payment.paid_at.slice(0, 10) %></small></td><td><%= payment.member_name %><small><%= payment.plan_name %></small></td><td><%= payment.period_start %><small>hasta <%= payment.period_end %></small></td><td><%= payment.payment_method %></td><td><strong>$<%= Number(payment.amount).toLocaleString("es-CO") %></strong></td></tr><% }) %>
+          <% if (!payments.length) { %><tr><td colspan="5" class="empty-state">Aún no hay pagos registrados.</td></tr><% } %>
+        </tbody></table></div>
       </section>
+    </div>
+  </section>
 
-      <section id="workouts" class="section section-dark">
-        <div class="section-heading">
-          <span class="section-kicker">Rutinas</span>
-          <h2>Rutinas base para mostrar una guia clara de entrenamiento.</h2>
-        </div>
-
-        <div class="section-grid">
-          <article class="admin-card">
-            <div class="card-heading">
-              <span class="section-kicker">Nueva rutina</span>
-              <h3>Agregar rutina</h3>
-            </div>
-
-            <form action="/admin/workouts/add" method="POST" class="form-shell">
-              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-
-              <div class="field">
-                <label for="workout-title">Título</label>
-                <input id="workout-title" type="text" name="title" maxlength="80" required />
-              </div>
-
-              <div class="field-grid">
-                <div class="field">
-                  <label for="workout-duration">Duración</label>
-                  <input id="workout-duration" type="text" name="duration" maxlength="40" required />
-                </div>
-
-                <div class="field">
-                  <label for="workout-difficulty">Dificultad</label>
-                  <input id="workout-difficulty" type="text" name="difficulty" maxlength="40" required />
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="workout-description">Descripción</label>
-                <textarea id="workout-description" name="description" rows="5" maxlength="400" required></textarea>
-              </div>
-
-              <button type="submit" class="btn btn-primary btn-block">Guardar rutina</button>
-            </form>
+  <section class="admin-section" id="clientes">
+    <div class="section-heading"><div><p class="eyebrow">Base de clientes</p><h2>Personas y vigencias</h2></div></div>
+    <div class="admin-grid">
+      <form class="form-panel" action="/admin/members" method="post">
+        <h3>Registrar cliente</h3>
+        <div class="form-row"><label>Nombre<input required name="name" maxlength="80"></label><label>Teléfono<input required name="phone" maxlength="30"></label></div>
+        <label>Correo<input required type="email" name="email" maxlength="120"></label>
+        <div class="form-row"><label>Plan<select required name="membership_id"><% plans.forEach((plan) => { %><option value="<%= plan.id %>"><%= plan.name %> · $<%= Number(plan.price).toLocaleString("es-CO") %></option><% }) %></select></label><label>Inicio<input type="date" name="membership_start" value="<%= new Date().toISOString().slice(0, 10) %>"></label></div>
+        <label>Objetivo<input required name="goal" maxlength="120"></label>
+        <label>Información relevante<textarea name="notes" rows="2" maxlength="300" placeholder="Preferencias, lesiones, horario ideal..."></textarea></label>
+        <button class="button primary" type="submit">Guardar cliente</button>
+      </form>
+      <section class="table-panel member-directory">
+        <div class="panel-title"><div><p class="eyebrow">Directorio</p><h3><%= members.length %> clientes</h3></div></div>
+        <div class="member-list"><% members.forEach((member) => { const expired = member.days_left < 0; const soon = member.days_left >= 0 && member.days_left <= 7; %>
+          <article class="member-card">
+            <div class="member-avatar"><%= member.name.slice(0,1).toUpperCase() %></div>
+            <div class="member-main"><strong><%= member.name %></strong><span><%= member.email %> · <%= member.phone %></span><small><%= member.goal %></small></div>
+            <div class="member-plan"><strong><%= member.plan_name %></strong><span class="status <%= expired ? "expired" : soon ? "soon" : "ok" %>"><%= expired ? `Vencida hace ${Math.abs(member.days_left)} días` : `${member.days_left} días restantes` %></span><small>Hasta <%= member.membership_end || "sin fecha" %></small></div>
+            <form action="/admin/members/<%= member.id %>/status" method="post"><input type="hidden" name="status" value="<%= member.status === "activo" ? "inactivo" : "activo" %>"><button class="icon-button" title="Cambiar estado" type="submit"><%= member.status === "activo" ? "Pausar" : "Activar" %></button></form>
           </article>
-
-          <article class="table-card">
-            <div class="card-heading">
-              <span class="section-kicker">Rutinas activas</span>
-              <h3>Contenido deportivo</h3>
-            </div>
-
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Duración</th>
-                    <th>Dificultad</th>
-                    <th>Descripción</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% workouts.forEach((workout) => { %>
-                    <tr>
-                      <td data-label="ID"><%= workout.id %></td>
-                      <td data-label="Rutina"><strong><%= workout.title %></strong></td>
-                      <td data-label="Duracion"><%= workout.duration %></td>
-                      <td data-label="Dificultad"><%= workout.difficulty %></td>
-                      <td data-label="Descripcion"><%= workout.description %></td>
-                      <td class="action-cell" data-label="Editar">
-                        <details class="edit-panel">
-                          <summary>Editar</summary>
-                          <form action="/admin/workouts/update" method="POST" class="inline-form">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= workout.id %>" />
-                          <input type="text" name="title" value="<%= workout.title %>" maxlength="80" required />
-                          <input type="text" name="duration" value="<%= workout.duration %>" maxlength="40" required />
-                          <input type="text" name="difficulty" value="<%= workout.difficulty %>" maxlength="40" required />
-                          <textarea name="description" rows="3" maxlength="400" required><%= workout.description %></textarea>
-                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                          </form>
-                        </details>
-                      </td>
-                      <td class="action-cell" data-label="Eliminar">
-                        <form action="/admin/workouts/delete" method="POST" class="inline-form inline-form-danger">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= workout.id %>" />
-                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
+        <% }) %></div>
       </section>
+    </div>
+  </section>
 
-      <section id="diets" class="section section-light">
-        <div class="section-heading">
-          <span class="section-kicker">Dietas</span>
-          <h2>Dietas organizadas para que el contenido sea facil de revisar.</h2>
-        </div>
+  <section class="admin-section" id="asistencia">
+    <div class="admin-grid">
+      <form class="form-panel" action="/admin/attendance" method="post"><p class="eyebrow">Control diario</p><h3>Registrar asistencia</h3><label>Cliente<select required name="member_id"><option value="">Seleccionar</option><% members.forEach((member) => { %><option value="<%= member.id %>"><%= member.name %></option><% }) %></select></label><label>Nota<input name="note" maxlength="160" placeholder="Ej: Pierna + cardio"></label><button class="button primary" type="submit">Marcar entrada</button></form>
+      <section class="table-panel"><p class="eyebrow">Actividad</p><h3>Últimas entradas</h3><div class="table-scroll"><table><thead><tr><th>Cliente</th><th>Fecha</th><th>Nota</th></tr></thead><tbody><% attendance.forEach((item) => { %><tr><td><strong><%= item.member_name %></strong></td><td><%= item.check_in %></td><td><%= item.note || "Entrenamiento" %></td></tr><% }) %></tbody></table></div></section>
+    </div>
+  </section>
 
-        <div class="section-grid">
-          <article class="admin-card">
-            <div class="card-heading">
-              <span class="section-kicker">Nueva dieta</span>
-              <h3>Agregar dieta</h3>
-            </div>
+  <section class="admin-section" id="planes">
+    <div class="section-heading"><div><p class="eyebrow">Configuración comercial</p><h2>Planes y precios</h2></div><p>Los cambios se reflejan inmediatamente en la página pública.</p></div>
+    <div class="plan-editor-grid"><% plans.forEach((plan) => { %><form class="form-panel plan-editor" action="/admin/memberships/<%= plan.id %>" method="post">
+      <label>Nombre<input required name="name" value="<%= plan.name %>"></label>
+      <div class="form-row"><label>Precio COP<input required type="number" min="1" name="price" value="<%= plan.price %>"></label><label>Duración (días)<input required type="number" min="1" name="duration_days" value="<%= plan.duration_days %>"></label></div>
+      <label>Beneficios<textarea required name="benefits" rows="4"><%= plan.benefits %></textarea></label>
+      <label class="check-label"><input type="checkbox" name="featured" value="1" <%= plan.featured ? "checked" : "" %>> Mostrar como recomendado</label>
+      <button class="button primary" type="submit">Guardar cambios</button>
+    </form><% }) %></div>
+  </section>
 
-            <form action="/admin/diets/add" method="POST" class="form-shell">
-              <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+  <section class="admin-section" id="contenido">
+    <div class="section-heading"><div><p class="eyebrow">Catálogo digital</p><h2>Control total del contenido</h2></div><p>Crea, edita o elimina lo que aparece en la aplicación.</p></div>
+    <div class="content-summary"><span><strong><%= routines.length %></strong> rutinas</span><span><strong><%= nutritionPlans.length %></strong> alimentaciones</span><span><strong><%= products.length %></strong> productos</span><span><strong><%= testimonials.length %></strong> comentarios</span></div>
+    <div class="create-content-grid">
+    <details class="content-manager"><summary>Nueva rutina</summary><form class="form-panel" action="/admin/routines" method="post"><label>Título<input required name="title"></label><div class="form-row"><label>Nivel<select name="level"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Todos</option></select></label><label>Acceso<select name="access_level"><option value="gratis">Gratis</option><option value="premium">Premium</option></select></label></div><label>Enfoque<input required name="focus"></label><div class="form-row"><label>Duración<input required name="duration"></label><label>Frecuencia<input required name="frequency"></label></div><label>Descripción<textarea required name="description"></textarea></label><label>Ejercicios<textarea required name="exercises" placeholder="Separados con |"></textarea></label><label>Imagen URL<input name="image_url"></label><button class="button primary">Agregar rutina</button></form></details>
+    <details class="content-manager"><summary>Nuevo plan de alimentación</summary><form class="form-panel" action="/admin/nutrition" method="post"><label>Título<input required name="title"></label><div class="form-row"><label>Objetivo<input required name="goal"></label><label>Acceso<select name="access_level"><option value="gratis">Gratis</option><option value="premium">Premium</option></select></label></div><label>Calorías<input required name="calories"></label><label>Descripción<textarea required name="description"></textarea></label><label>Comidas<textarea required name="meals"></textarea></label><label>Imagen URL<input name="image_url"></label><button class="button primary">Agregar plan</button></form></details>
+    <details class="content-manager"><summary>Nuevo producto</summary><form class="form-panel" action="/admin/products" method="post"><label>Nombre<input required name="name"></label><div class="form-row"><label>Precio<input required type="number" min="1" name="price"></label><label>Stock<input required type="number" min="0" name="stock"></label></div><label>Categoría<input required name="category"></label><label>Descripción<textarea required name="description"></textarea></label><label>Imagen URL<input name="image_url"></label><button class="button primary">Agregar producto</button></form></details>
+    </div>
 
-              <div class="field">
-                <label for="diet-title">Título</label>
-                <input id="diet-title" type="text" name="title" maxlength="80" required />
-              </div>
+    <div class="catalog-manager">
+      <h3>Rutinas publicadas</h3>
+      <div class="catalog-admin-grid"><% routines.forEach((routine) => { %><details class="edit-card"><summary><img src="<%= routine.image_url %>" alt=""><span><strong><%= routine.title %></strong><small><%= routine.level %> · <%= routine.access_level %></small></span><b>Editar</b></summary><form action="/admin/routines/<%= routine.id %>/update" method="post"><label>Título<input required name="title" value="<%= routine.title %>"></label><div class="form-row"><label>Nivel<input required name="level" value="<%= routine.level %>"></label><label>Acceso<select name="access_level"><option value="gratis" <%= routine.access_level === "gratis" ? "selected" : "" %>>Gratis</option><option value="premium" <%= routine.access_level === "premium" ? "selected" : "" %>>Premium</option></select></label></div><label>Enfoque<input required name="focus" value="<%= routine.focus %>"></label><div class="form-row"><label>Duración<input required name="duration" value="<%= routine.duration %>"></label><label>Frecuencia<input required name="frequency" value="<%= routine.frequency %>"></label></div><label>Descripción<textarea required name="description"><%= routine.description %></textarea></label><label>Ejercicios<textarea required name="exercises"><%= routine.exercises %></textarea></label><label>Imagen URL<input name="image_url" value="<%= routine.image_url %>"></label><button class="button primary">Guardar rutina</button></form><form class="delete-form" action="/admin/routines/<%= routine.id %>/delete" method="post" data-confirm="¿Eliminar esta rutina definitivamente?"><button class="danger-button">Eliminar rutina</button></form></details><% }) %></div>
 
-              <div class="field">
-                <label for="diet-calories">Calorías</label>
-                <input id="diet-calories" type="text" name="calories" maxlength="40" required />
-              </div>
+      <h3>Productos publicados</h3>
+      <div class="catalog-admin-grid"><% products.forEach((product) => { %><details class="edit-card"><summary><img src="<%= product.image_url %>" alt=""><span><strong><%= product.name %></strong><small>$<%= Number(String(product.price).replace(/\D/g, "") || 0).toLocaleString("es-CO") %> · <%= product.stock %> unidades</small></span><b>Editar</b></summary><form action="/admin/products/<%= product.id %>/update" method="post"><label>Nombre<input required name="name" value="<%= product.name %>"></label><div class="form-row"><label>Precio<input required type="number" min="1" name="price" value="<%= String(product.price).replace(/\D/g, "") %>"></label><label>Stock<input required type="number" min="0" name="stock" value="<%= product.stock %>"></label></div><label>Categoría<input required name="category" value="<%= product.category %>"></label><label>Descripción<textarea required name="description"><%= product.description %></textarea></label><label>Imagen URL<input name="image_url" value="<%= product.image_url %>"></label><button class="button primary">Guardar producto</button></form><form class="delete-form" action="/admin/products/<%= product.id %>/delete" method="post" data-confirm="¿Eliminar este producto definitivamente?"><button class="danger-button">Eliminar producto</button></form></details><% }) %></div>
 
-              <div class="field">
-                <label for="diet-description">Descripción</label>
-                <textarea id="diet-description" name="description" rows="5" maxlength="400" required></textarea>
-              </div>
+      <h3>Planes de alimentación</h3>
+      <div class="catalog-admin-grid"><% nutritionPlans.forEach((plan) => { %><details class="edit-card"><summary><img src="<%= plan.image_url %>" alt=""><span><strong><%= plan.title %></strong><small><%= plan.goal %> · <%= plan.access_level %></small></span><b>Editar</b></summary><form action="/admin/nutrition/<%= plan.id %>/update" method="post"><label>Título<input required name="title" value="<%= plan.title %>"></label><div class="form-row"><label>Objetivo<input required name="goal" value="<%= plan.goal %>"></label><label>Acceso<select name="access_level"><option value="gratis" <%= plan.access_level === "gratis" ? "selected" : "" %>>Gratis</option><option value="premium" <%= plan.access_level === "premium" ? "selected" : "" %>>Premium</option></select></label></div><label>Calorías<input required name="calories" value="<%= plan.calories %>"></label><label>Descripción<textarea required name="description"><%= plan.description %></textarea></label><label>Comidas<textarea required name="meals"><%= plan.meals %></textarea></label><label>Imagen URL<input name="image_url" value="<%= plan.image_url %>"></label><button class="button primary">Guardar plan</button></form><form class="delete-form" action="/admin/nutrition/<%= plan.id %>/delete" method="post" data-confirm="¿Eliminar este plan definitivamente?"><button class="danger-button">Eliminar plan</button></form></details><% }) %></div>
 
-              <button type="submit" class="btn btn-primary btn-block">Guardar dieta</button>
-            </form>
-          </article>
+      <h3>Moderación de comentarios</h3>
+      <div class="testimonial-admin-list"><% testimonials.forEach((item) => { %><article><div><strong><%= item.author %></strong><span><%= item.rating %> estrellas · <%= item.goal %> · <%= item.approved ? "Publicado" : "Pendiente" %></span><p><%= item.comment %></p></div><div><% if (!item.approved) { %><form action="/admin/testimonials/<%= item.id %>/approve" method="post"><button class="button primary">Aprobar</button></form><% } %><form class="delete-form" action="/admin/testimonials/<%= item.id %>/delete" method="post" data-confirm="¿Eliminar este comentario?"><button class="danger-button">Eliminar</button></form></div></article><% }) %></div>
+    </div>
+  </section>
 
-          <article class="table-card">
-            <div class="card-heading">
-              <span class="section-kicker">Dietas activas</span>
-              <h3>Contenido nutricional</h3>
-            </div>
-
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Calorías</th>
-                    <th>Descripción</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% diets.forEach((diet) => { %>
-                    <tr>
-                      <td data-label="ID"><%= diet.id %></td>
-                      <td data-label="Dieta"><strong><%= diet.title %></strong></td>
-                      <td data-label="Calorias"><%= diet.calories %></td>
-                      <td data-label="Descripcion"><%= diet.description %></td>
-                      <td class="action-cell" data-label="Editar">
-                        <details class="edit-panel">
-                          <summary>Editar</summary>
-                          <form action="/admin/diets/update" method="POST" class="inline-form">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= diet.id %>" />
-                          <input type="text" name="title" value="<%= diet.title %>" maxlength="80" required />
-                          <input type="text" name="calories" value="<%= diet.calories %>" maxlength="40" required />
-                          <textarea name="description" rows="3" maxlength="400" required><%= diet.description %></textarea>
-                          <button type="submit" class="btn btn-secondary btn-small">Actualizar</button>
-                          </form>
-                        </details>
-                      </td>
-                      <td class="action-cell" data-label="Eliminar">
-                        <form action="/admin/diets/delete" method="POST" class="inline-form inline-form-danger">
-                          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                          <input type="hidden" name="id" value="<%= diet.id %>" />
-                          <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section id="users" class="section section-dark">
-        <div class="section-heading">
-          <span class="section-kicker">Usuarios</span>
-          <h2>Clientes y membresias reunidos en una sola vista.</h2>
-        </div>
-
-        <article class="table-card">
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Usuario</th>
-                  <th>Plan</th>
-                  <th>Objetivo</th>
-                  <th>Perfil</th>
-                  <th>Registro</th>
-                  <th>Membresía</th>
-                  <th>Renovar</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% users.forEach((user) => { %>
-                  <tr>
-                    <td data-label="ID"><%= user.id %></td>
-                    <td data-label="Usuario">
-                      <strong><%= user.name %></strong>
-                      <div class="table-meta"><%= user.email %></div>
-                      <div class="table-meta"><%= user.phone %></div>
-                    </td>
-                    <td data-label="Plan"><%= user.plan %></td>
-                    <td data-label="Objetivo"><%= user.goal %></td>
-                    <td data-label="Perfil"><%= user.age %> años · <%= user.weight %> kg · <%= user.height %> cm</td>
-                    <td data-label="Registro"><%= user.createdAtLabel %></td>
-                    <td data-label="Membresia">
-                      <span class="badge <%= user.membershipTone %>"><%= user.membershipLabel %></span>
-                      <div class="table-meta"><%= user.daysRemaining %> días restantes</div>
-                      <div class="table-meta">Vence: <%= user.expiryLabel %></div>
-                    </td>
-                    <td data-label="Renovar">
-                      <form action="/admin/user/renew" method="POST" class="inline-form">
-                        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                        <input type="hidden" name="userId" value="<%= user.id %>" />
-                        <input type="number" name="days" min="1" max="365" value="30" required />
-                        <button type="submit" class="btn btn-primary btn-small">Renovar</button>
-                      </form>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
-
-      <section id="orders" class="section section-light">
-        <div class="section-heading">
-          <span class="section-kicker">Pedidos</span>
-          <h2>Pedidos con estados claros para saber que falta por revisar.</h2>
-        </div>
-
-        <article class="table-card">
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Producto</th>
-                  <th>Cliente</th>
-                  <th>Dirección</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                  <th>Actualizar</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% orders.forEach((order) => { %>
-                  <tr>
-                    <td data-label="ID"><%= order.id %></td>
-                    <td data-label="Producto"><strong><%= order.productName %></strong></td>
-                    <td data-label="Cliente">
-                      <strong><%= order.full_name %></strong>
-                      <div class="table-meta"><%= order.email %></div>
-                    </td>
-                    <td data-label="Direccion"><%= order.address %></td>
-                    <td data-label="Fecha"><%= order.createdAtLabel %></td>
-                    <td data-label="Estado"><span class="badge <%= order.statusTone %>"><%= order.status %></span></td>
-                    <td data-label="Actualizar">
-                      <form action="/admin/orders/status" method="POST" class="inline-form">
-                        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                        <input type="hidden" name="orderId" value="<%= order.id %>" />
-                        <select name="status" required>
-                          <% orderStatuses.forEach((status) => { %>
-                            <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status %></option>
-                          <% }) %>
-                        </select>
-                        <button type="submit" class="btn btn-secondary btn-small">Guardar</button>
-                      </form>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <p>&copy; <%= currentYear %> Gyminfinity. Proyecto academico en mejora continua.</p>
-    </footer>
-  </body>
-</html>
+  <details class="content-manager audit-manager">
+    <summary>Registro de actividad administrativa</summary>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Fecha</th><th>Acción</th><th>Ruta</th><th>Estado</th></tr></thead>
+        <tbody>
+          <% auditLogs.forEach((item) => { %>
+            <tr><td><%= item.created_at %></td><td><%= item.action %></td><td><%= item.path %></td><td><%= item.status_code %></td></tr>
+          <% }) %>
+          <% if (!auditLogs.length) { %><tr><td colspan="4" class="empty-state">Aún no hay actividad registrada.</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+<%- include("partials/footer") %>

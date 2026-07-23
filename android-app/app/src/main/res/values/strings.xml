@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">Gyminfinity</string>
-    <string name="connection_title">No se pudo abrir Gyminfinity</string>
-    <string name="connection_message">En el emulador inicia primero el servidor Node con npm start. La app debug apunta a http://10.0.2.2:3000.</string>
-    <string name="retry">Reintentar</string>
-</resources>

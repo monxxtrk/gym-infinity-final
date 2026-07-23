@@ -1,128 +1,176 @@
-const fs = require('fs');
-const path = require('path');
-const request = require('supertest');
+const request = require("supertest");
+const session = require("express-session");
+const { createApp } = require("../src/app");
 
-const testDbFile = path.join(__dirname, 'gyminfinity.test.db');
-process.env.DB_FILE = testDbFile;
-process.env.NODE_ENV = 'test';
-process.env.ADMIN_PASSWORD = 'papitas12';
+describe("Gym Infinity web app", () => {
+  const databaseFile = ":memory:";
+  let app;
 
-const { app, db } = require('../server');
+  beforeEach(() => {
+    process.env.NODE_ENV = "test";
+    process.env.ADMIN_EMAIL = "admin@gyminfinity.test";
+    process.env.ADMIN_PASSWORD = "Admin12345";
+    app = createApp({ databaseFile, sessionStore: new session.MemoryStore() });
+  });
 
-const extractCsrfToken = (html) => {
-  const match = html.match(/name="csrfToken"\s+value="([^"]+)"/);
-  if (!match) {
-    throw new Error('No se encontro csrfToken en la pagina.');
-  }
+  afterEach((done) => {
+    app.locals.db.close(done);
+  });
 
-  return match[1];
-};
-
-beforeAll(async () => {
-  await db.ready;
-});
-
-afterAll(async () => {
-  await db.close();
-
-  if (fs.existsSync(testDbFile)) {
-    fs.unlinkSync(testDbFile);
-  }
-});
-
-describe('Gyminfinity app', () => {
-  test('muestra la pagina principal', async () => {
-    const response = await request(app).get('/');
-
+  test("renders the public home with gym content and women-only testimonials section", async () => {
+    const response = await request(app).get("/");
     expect(response.status).toBe(200);
-    expect(response.text).toContain('Gyminfinity');
+    expect(response.text).toContain("Gym Infinity");
+    expect(response.text).toContain("Historias Infinity");
+    expect(response.text).toContain("Fuerza Total 4D");
   });
 
-  test('permite iniciar sesion como administrador', async () => {
-    const agent = request.agent(app);
-    const loginPage = await agent.get('/admin-login').expect(200);
-    const csrfToken = extractCsrfToken(loginPage.text);
-
-    await agent
-      .post('/admin-login')
-      .type('form')
-      .send({
-        csrfToken,
-        password: 'papitas12',
-        username: 'admin'
-      })
-      .expect(302)
-      .expect('Location', '/admin');
-
-    const adminPage = await agent.get('/admin').expect(200);
-    expect(adminPage.text).toContain('Dashboard Gyminfinity');
+  test("protects the admin dashboard", async () => {
+    const response = await request(app).get("/admin");
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/admin-login");
   });
 
-  test('registra un cliente y genera factura con tarjeta de credito', async () => {
+  test("allows the configured admin account into the dashboard", async () => {
     const agent = request.agent(app);
-    const email = `cliente.${Date.now()}@example.com`;
+    const response = await agent
+      .post("/admin-login")
+      .type("form")
+      .send({ email: "admin@gyminfinity.test", password: "Admin12345" });
 
-    const homePage = await agent.get('/').expect(200);
-    const signupCsrf = extractCsrfToken(homePage.text);
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/admin");
 
-    await agent
-      .post('/signup')
-      .type('form')
-      .send({
-        age: '29',
-        csrfToken: signupCsrf,
-        email,
-        goal: 'Perder peso',
-        height: '175',
-        name: 'Cliente Prueba',
-        phone: '3001234567',
-        plan: 'Fitness Pro',
-        weight: '78'
-      })
-      .expect(302)
-      .expect('Location', '/client');
+    const dashboard = await agent.get("/admin");
+    expect(dashboard.status).toBe(200);
+    expect(dashboard.text).toContain("Gestión Gym Infinity");
+  });
 
-    const clientPage = await agent.get('/client').expect(200);
-    const orderCsrf = extractCsrfToken(clientPage.text);
+  test("accepts contact leads with valid data", async () => {
+    const response = await request(app)
+      .post("/contacto")
+      .type("form")
+      .send({ name: "Maria", email: "maria@example.com", phone: "3001234567", goal: "Ganar fuerza" });
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/#contacto");
+  });
 
-    const orderResponse = await agent
-      .post('/order')
-      .type('form')
-      .send({
-        address: 'Calle 10 # 15-20',
-        billingAddress: 'Calle 10 # 15-20',
-        billingDocument: '123456789',
-        billingEmail: email,
-        billingName: 'Cliente Prueba',
-        billingPhone: '3001234567',
-        cardCvv: '123',
-        cardExpiry: '12/30',
-        cardHolder: 'Cliente Prueba',
-        cardInstallments: '3',
-        cardNumber: '4111111111111111',
-        csrfToken: orderCsrf,
-        paymentMethod: 'card',
-        productId: '1'
-      })
-      .expect(302);
+  test("lets the admin register a member payment and creates an invoice", async () => {
+    const agent = request.agent(app);
+    await agent.post("/admin-login").type("form").send({
+      email: "admin@gyminfinity.test",
+      password: "Admin12345"
+    });
+    await agent.post("/admin/members").type("form").send({
+      name: "Cliente Demo",
+      email: "cliente.demo@example.com",
+      phone: "3001234567",
+      membership_id: 2,
+      goal: "Ganar fuerza",
+      membership_start: "2026-07-22"
+    });
+    const member = await new Promise((resolve, reject) => {
+      app.locals.db.get("SELECT id FROM members WHERE email = ?", ["cliente.demo@example.com"], (err, row) => err ? reject(err) : resolve(row));
+    });
+    const payment = await agent.post("/admin/payments").type("form").send({
+      member_id: member.id,
+      amount: 119000,
+      period_start: "2026-07-22",
+      payment_method: "Transferencia",
+      reference: "TEST-001"
+    });
+    expect(payment.status).toBe(302);
+    expect(payment.headers.location).toBe("/admin#facturacion");
+    const dashboard = await agent.get("/admin");
+    expect(dashboard.text).toContain("GI-2026-00001");
+    expect(dashboard.text).toContain("$119.000");
+    expect(dashboard.text).toContain("2026-08-21");
+  });
 
-    const order = await db.queryOne('SELECT * FROM orders WHERE billing_email = ?', [email]);
+  test("keeps new accounts pending until the admin grants access", async () => {
+    const visitor = request.agent(app);
+    const registration = await visitor.post("/registro").type("form").send({
+      name: "Nueva Persona",
+      email: "nueva@example.com",
+      phone: "3015551212",
+      goal: "Mejorar condicion",
+      password: "ClaveSegura123"
+    });
+    expect(registration.headers.location).toBe("/login");
+    const denied = await visitor.post("/login").type("form").send({ email: "nueva@example.com", password: "ClaveSegura123" });
+    expect(denied.headers.location).toBe("/login");
 
-    expect(order).toEqual(expect.objectContaining({
-      billing_document: '123456789',
-      card_brand: 'Visa',
-      card_last4: '1111',
-      payment_method: 'card',
-      payment_status: 'Pagado'
-    }));
-    expect(order.invoice_number).toMatch(/^GYM-\d{4}-\d{6}$/);
-    expect(order.amount_total).toBeGreaterThan(0);
-    expect(order.payment_destination.toLowerCase()).toContain('cuenta bancaria');
-    expect(orderResponse.headers.location).toBe(`/invoice/${order.invoice_number}`);
+    const admin = request.agent(app);
+    await admin.post("/admin-login").type("form").send({ email: "admin@gyminfinity.test", password: "Admin12345" });
+    const account = await new Promise((resolve, reject) => {
+      app.locals.db.get("SELECT id FROM users WHERE email = ?", ["nueva@example.com"], (err, row) => err ? reject(err) : resolve(row));
+    });
+    await admin.post(`/admin/users/${account.id}/access`).type("form").send({ access_granted: "1" });
+    const allowed = await visitor.post("/login").type("form").send({ email: "nueva@example.com", password: "ClaveSegura123" });
+    expect(allowed.headers.location).toBe("/mi-cuenta");
+  });
 
-    const invoicePage = await agent.get(`/invoice/${order.invoice_number}`).expect(200);
-    expect(invoicePage.text).toContain('Factura de venta');
-    expect(invoicePage.text).toContain('Gyminfinity Centro de Acondicionamiento Fisico');
-    expect(invoicePage.text).toContain('Cliente Prueba');
+  test("lets the admin update membership pricing", async () => {
+    const admin = request.agent(app);
+    await admin.post("/admin-login").type("form").send({ email: "admin@gyminfinity.test", password: "Admin12345" });
+    const response = await admin.post("/admin/memberships/1").type("form").send({
+      name: "Essential",
+      price: 85000,
+      duration_days: 30,
+      benefits: "Acceso a sala y seguimiento",
+      featured: "1"
+    });
+    expect(response.headers.location).toBe("/admin#planes");
+    const plans = await request(app).get("/planes");
+    expect(plans.text).toContain("$85.000");
+  });
+
+  test("lets the admin create, edit and delete catalog content", async () => {
+    const admin = request.agent(app);
+    await admin.post("/admin-login").type("form").send({ email: "admin@gyminfinity.test", password: "Admin12345" });
+    await admin.post("/admin/products").type("form").send({
+      name: "Producto CRUD",
+      price: 45000,
+      stock: 8,
+      category: "Prueba",
+      description: "Producto temporal para verificar administracion."
+    });
+    const product = await new Promise((resolve, reject) => {
+      app.locals.db.get("SELECT id FROM products WHERE name = ?", ["Producto CRUD"], (err, row) => err ? reject(err) : resolve(row));
+    });
+    await admin.post(`/admin/products/${product.id}/update`).type("form").send({
+      name: "Producto CRUD Editado",
+      price: 52000,
+      stock: 5,
+      category: "Prueba",
+      description: "Producto actualizado correctamente."
+    });
+    const store = await admin.get("/tienda");
+    expect(store.text).toContain("Producto CRUD Editado");
+    expect(store.text).toContain("$52.000");
+    await admin.post(`/admin/products/${product.id}/delete`);
+    const deleted = await admin.get(`/tienda/${product.id}`);
+    expect(deleted.status).toBe(404);
+  });
+
+  test("keeps new comments pending until an administrator approves them", async () => {
+    const response = await request(app).post("/comentarios").type("form").send({
+      author: "Comentario Pendiente",
+      goal: "Mejorar condición",
+      comment: "La experiencia ha sido organizada y muy profesional.",
+      rating: 5
+    });
+    expect(response.status).toBe(302);
+    const publicHome = await request(app).get("/");
+    expect(publicHome.text).not.toContain("Comentario Pendiente");
+
+    const admin = request.agent(app);
+    await admin.post("/admin-login").type("form").send({ email: "admin@gyminfinity.test", password: "Admin12345" });
+    const item = await new Promise((resolve, reject) => {
+      app.locals.db.get("SELECT id FROM testimonials WHERE author = ?", ["Comentario Pendiente"], (err, row) => err ? reject(err) : resolve(row));
+    });
+    await admin.post(`/admin/testimonials/${item.id}/approve`);
+    const approvedHome = await request(app).get("/");
+    expect(approvedHome.text).toContain("Comentario Pendiente");
   });
 });

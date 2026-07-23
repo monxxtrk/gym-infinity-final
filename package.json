@@ -1,22 +1,41 @@
 {
-  "name": "gyminfinity-site",
+  "name": "gym-infinity-final",
   "version": "1.0.0",
-  "description": "Plataforma web de Gyminfinity con autenticacion, gestion administrativa y experiencia de cliente.",
+  "description": "Aplicación web profesional para la gestión integral de Gym Infinity.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check db.js && node --check public/js/main.js",
+    "dev": "node server.js",
     "test": "jest --runInBand",
-    "test:watch": "jest --watch"
+    "backup": "node tools/backup.js",
+    "check": "node --check server.js && node --check src/app.js && node --check src/routes.js && npm test"
   },
+  "keywords": [
+    "gym",
+    "fitness",
+    "express",
+    "sqlite"
+  ],
+  "author": "Gym Infinity",
+  "license": "MIT",
   "dependencies": {
-    "ejs": "^3.1.9",
-    "express": "^4.18.4",
-    "sqlite3": "^5.1.6"
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
+    "connect-sqlite3": "^0.9.17",
+    "dotenv": "^17.4.2",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.6.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "method-override": "^3.0.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
-    "supertest": "^7.2.2"
+    "jest": "^30.0.4",
+    "supertest": "^7.1.4"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

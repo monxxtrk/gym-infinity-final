@@ -1,0 +1,37 @@
+<%- include("partials/header") %>
+<section class="page-hero compact">
+  <p class="eyebrow"><%= routine.level %> / <%= routine.focus %></p>
+  <h1><%= routine.title %></h1>
+</section>
+<section class="section detail-layout">
+  <article class="detail-panel">
+    <img src="<%= routine.image_url %>" alt="<%= routine.title %>">
+    <div>
+      <p><%= routine.description %></p>
+      <dl>
+        <div><dt>Duración</dt><dd><%= routine.duration %></dd></div>
+        <div><dt>Frecuencia</dt><dd><%= routine.frequency %></dd></div>
+        <div><dt>Nivel</dt><dd><%= routine.level %></dd></div>
+        <div><dt>Enfoque</dt><dd><%= routine.focus %></dd></div>
+      </dl>
+      <h2>Bloque de ejercicios</h2>
+      <ul class="module-list">
+        <% routine.exercises.split("|").forEach((exercise) => { %>
+          <li><%= exercise.trim() %></li>
+        <% }) %>
+      </ul>
+      <a class="button primary" href="/#contacto">Quiero esta rutina</a>
+    </div>
+  </article>
+  <aside class="side-panel">
+    <h2>Rutinas relacionadas</h2>
+    <% related.forEach((item) => { %>
+      <a class="mini-link" href="/rutinas/<%= item.id %>">
+        <strong><%= item.title %></strong>
+        <span><%= item.duration %> / <%= item.frequency %></span>
+      </a>
+    <% }) %>
+    <a class="button ghost full" href="/rutinas">Volver a rutinas</a>
+  </aside>
+</section>
+<%- include("partials/footer") %>

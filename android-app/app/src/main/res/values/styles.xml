@@ -1,9 +1,0 @@
-<resources>
-    <style name="Theme.Gyminfinity" parent="android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">@color/gyminfinity_bg</item>
-        <item name="android:navigationBarColor">@color/gyminfinity_bg</item>
-    </style>
-</resources>
