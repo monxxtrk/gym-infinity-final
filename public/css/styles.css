@@ -823,6 +823,13 @@ body .icon-button:hover {
 .recovery-admin-form { display: grid; grid-template-columns: minmax(180px,1fr) minmax(240px,1.4fr) auto; gap: 12px; align-items: center; padding-top: 12px; border-top: 1px solid #f5d0fe; }
 .recovery-admin-form input { min-height: 44px; }
 .audit-manager { margin-top: 24px; }
+.team-section { scroll-margin-top: 110px; }
+.team-account-list { display: grid; gap: 12px; }
+.team-account-card { display: grid; grid-template-columns: minmax(180px,1fr) auto auto; gap: 12px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.team-account-card > div { display: grid; gap: 4px; min-width: 0; }
+.team-account-card span,.team-account-card small { color: var(--muted); overflow-wrap: anywhere; }
+.team-password-form { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.team-password-form input { min-height: 42px; }
 .account-security { grid-template-columns: 1.1fr 1fr 1fr auto; align-items: end; margin-top: 24px; }
 .legal-document { max-width: 920px; font-size: 1.04rem; line-height: 1.75; }
 .legal-document h2 { margin-top: 16px; }
@@ -845,6 +852,7 @@ body .icon-button:hover {
 @media (max-width: 640px) {
   .invoice-heading { flex-direction: column; }
   .invoice-grid { grid-template-columns: 1fr; }
+  .team-account-card,.team-password-form { grid-template-columns: 1fr; }
 }
 
 @media print {

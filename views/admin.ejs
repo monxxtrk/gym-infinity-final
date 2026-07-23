@@ -6,7 +6,7 @@
   </div>
 
   <nav class="admin-tabs" aria-label="Secciones del panel">
-    <a href="#resumen">Resumen</a><a href="#solicitudes">Solicitudes</a><a href="#facturacion">Facturación</a><a href="#clientes">Clientes</a><a href="#planes">Planes</a><a href="#asistencia">Asistencia</a><a href="#contenido">Contenido</a>
+    <a href="#resumen">Resumen</a><% if (currentUser.email.toLowerCase() === String(process.env.ADMIN_EMAIL || "admin@gyminfinity.test").toLowerCase()) { %><a href="#equipo">Equipo</a><% } %><a href="#solicitudes">Solicitudes</a><a href="#facturacion">Facturación</a><a href="#clientes">Clientes</a><a href="#planes">Planes</a><a href="#asistencia">Asistencia</a><a href="#contenido">Contenido</a>
   </nav>
 
   <div class="stats-grid admin-stats" id="resumen">
@@ -20,6 +20,47 @@
     <a class="button primary" href="/admin/export/payments.csv">Exportar pagos</a>
     <a class="button ghost" href="#contenido">Moderar contenido</a>
   </div>
+
+  <% if (currentUser.email.toLowerCase() === String(process.env.ADMIN_EMAIL || "admin@gyminfinity.test").toLowerCase()) { %>
+    <section class="admin-section team-section" id="equipo">
+      <div class="section-heading">
+        <div><p class="eyebrow">Seguridad y permisos</p><h2>Equipo administrativo</h2></div>
+        <p>Crea accesos individuales. Las contraseñas se guardan cifradas y nunca vuelven a mostrarse.</p>
+      </div>
+      <div class="admin-grid">
+        <form class="form-panel accent-panel" action="/admin/team" method="post">
+          <h3>Crear credenciales</h3>
+          <label>Nombre completo<input required name="name" maxlength="80"></label>
+          <div class="form-row">
+            <label>Correo<input required type="email" name="email" maxlength="120"></label>
+            <label>Teléfono<input name="phone" maxlength="30"></label>
+          </div>
+          <label>Tipo de acceso<select name="role"><option value="staff">Trabajador</option><option value="admin">Administrador</option></select></label>
+          <label>Contraseña temporal<input required type="password" name="password" minlength="10" autocomplete="new-password"></label>
+          <small>Entrega la contraseña por un canal privado y solicita que sea reemplazada.</small>
+          <button class="button primary" type="submit">Crear cuenta de equipo</button>
+        </form>
+        <section class="table-panel">
+          <div class="panel-title"><div><p class="eyebrow">Accesos internos</p><h3><%= teamAccounts.length %> cuentas</h3></div></div>
+          <div class="team-account-list">
+            <% teamAccounts.forEach((account) => { const isPrimary = account.email.toLowerCase() === String(process.env.ADMIN_EMAIL || "").toLowerCase(); %>
+              <article class="team-account-card">
+                <div><strong><%= account.name %></strong><span><%= account.email %><%= account.phone ? ` · ${account.phone}` : "" %></span><small><%= account.role === "admin" ? "Administrador" : "Trabajador" %><%= isPrimary ? " · Cuenta principal" : "" %></small></div>
+                <span class="status <%= account.access_granted ? "ok" : "expired" %>"><%= account.access_granted ? "Activo" : "Suspendido" %></span>
+                <% if (!isPrimary && account.id !== currentUser.id) { %>
+                  <form action="/admin/team/<%= account.id %>/status" method="post"><input type="hidden" name="access_granted" value="<%= account.access_granted ? "0" : "1" %>"><button class="button ghost" type="submit"><%= account.access_granted ? "Suspender" : "Activar" %></button></form>
+                <% } %>
+                <% if (!isPrimary) { %><form class="team-password-form" action="/admin/team/<%= account.id %>/password" method="post">
+                  <input required minlength="10" type="password" name="password" autocomplete="new-password" placeholder="Nueva contraseña temporal">
+                  <button class="icon-button" type="submit">Cambiar clave</button>
+                </form><% } %>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+      </div>
+    </section>
+  <% } %>
   <% if (passwordRequests.length) { %>
     <section class="admin-alert">
       <strong><%= passwordRequests.length %> solicitudes de recuperación pendientes</strong>
