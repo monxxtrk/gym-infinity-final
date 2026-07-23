@@ -1,6 +1,21 @@
 # Gym Infinity Final
 
-Plataforma web profesional para presentar y administrar un gimnasio desde una sola aplicación. Gym Infinity integra el sitio comercial, cuentas de clientes, catálogo fitness, membresías, caja, facturación, asistencia y un panel administrativo con identidad visual morada, rosada, blanca y negra.
+Gym Infinity es un proyecto académico que desarrollé para aplicar conocimientos de programación web en una situación cercana a un negocio real. La idea fue crear una página para un gimnasio que no se quedara solamente en la parte visual, sino que también permitiera organizar clientes, membresías, pagos, rutinas, alimentación y tareas administrativas.
+
+Aunque nació como un proyecto de estudiante, intenté mantener una estructura ordenada, una presentación profesional y funciones que podrían servir como base para una aplicación real.
+
+## Objetivo del proyecto
+
+El objetivo principal fue aprender a conectar una interfaz responsive con un servidor, una base de datos y diferentes tipos de usuarios. Durante el desarrollo trabajé especialmente en:
+
+- diseño adaptable para computadores y dispositivos móviles;
+- formularios y validación de información;
+- autenticación y permisos;
+- operaciones CRUD;
+- manejo de membresías y pagos;
+- generación de documentos PDF;
+- seguridad básica para una aplicación web;
+- pruebas automáticas y despliegue.
 
 ## Aplicación en línea
 
@@ -8,7 +23,7 @@ Plataforma web profesional para presentar y administrar un gimnasio desde una so
 
 El servicio utiliza el plan gratuito de Render, por lo que el primer acceso después de un periodo de inactividad puede tardar aproximadamente 50 segundos.
 
-## Qué contiene la plataforma
+## Funciones que desarrollé
 
 ### Sitio público
 
@@ -95,7 +110,7 @@ El servicio utiliza el plan gratuito de Render, por lo que el primer acceso desp
 - Validación de datos y métodos de pago.
 - Confirmación antes de eliminaciones.
 
-## Tecnologías
+## Tecnologías utilizadas
 
 | Tecnología | Uso dentro del proyecto |
 |---|---|
@@ -250,9 +265,9 @@ La suite actual cubre:
 - moderación de comentarios;
 - credenciales para trabajadores.
 
-## Integraciones pendientes para operación comercial
+## Posibles mejoras futuras
 
-La plataforma ya funciona como aplicación demostrable y sistema administrativo. Para una operación empresarial completa se recomienda integrar:
+La plataforma funciona como demostración académica y sistema administrativo inicial. Si en el futuro se quisiera utilizar en un gimnasio real, todavía sería importante integrar:
 
 - pasarela de pagos en línea;
 - facturación electrónica mediante proveedor autorizado;
@@ -274,6 +289,12 @@ Nunca deben publicarse:
 - copias de seguridad;
 - credenciales de servicios externos.
 
-## Estado del proyecto
+## Lo que aprendí
 
-Gym Infinity Final cuenta con una identidad visual completa, experiencia responsive, administración de clientes y contenido, roles internos, seguridad, pagos, facturación PDF y pruebas automatizadas. Está listo para demostración profesional y preparado para continuar con integraciones comerciales reales.
+Este proyecto me permitió practicar el recorrido completo de una aplicación: organizar la interfaz, conectar formularios con el servidor, diseñar tablas en SQLite, manejar sesiones, crear roles, validar pagos, producir un PDF y publicar los cambios con GitHub y Render.
+
+También aprendí que una aplicación no termina cuando “se ve bien”. Es necesario pensar en seguridad, datos, mensajes de error, experiencia móvil, pruebas y mantenimiento.
+
+## Estado actual
+
+La versión actual incluye una identidad visual completa, experiencia responsive, administración de clientes y contenido, roles internos, seguridad, pagos, facturación PDF y pruebas automatizadas. La considero una versión sólida para presentar como proyecto estudiantil, explicar el proceso de desarrollo y continuar agregando integraciones en el futuro.
