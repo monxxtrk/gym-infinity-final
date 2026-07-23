@@ -1,7 +1,7 @@
 {
-  "name": "gym-infinity",
+  "name": "gym-infinity-final",
   "version": "1.0.0",
-  "description": "Aplicacion web profesional para gimnasio con rutinas, comentarios, membresias y panel administrativo.",
+  "description": "Aplicación web profesional para la gestión integral de Gym Infinity.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
