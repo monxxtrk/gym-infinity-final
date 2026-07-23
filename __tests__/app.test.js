@@ -76,8 +76,9 @@ describe("Gym Infinity web app", () => {
       member_id: member.id,
       amount: 119000,
       period_start: "2026-07-22",
-      payment_method: "Transferencia",
-      reference: "TEST-001"
+      payment_method: "Transferencia bancaria",
+      reference: "TEST-001",
+      concept: "Membresía Performance de prueba"
     });
     expect(payment.status).toBe(302);
     expect(payment.headers.location).toBe("/admin#facturacion");
@@ -85,6 +86,14 @@ describe("Gym Infinity web app", () => {
     expect(dashboard.text).toContain("GI-2026-00001");
     expect(dashboard.text).toContain("$119.000");
     expect(dashboard.text).toContain("2026-08-21");
+    const pdf = await agent.get("/admin/invoices/1/pdf").buffer(true).parse((res, callback) => {
+      const chunks = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => callback(null, Buffer.concat(chunks)));
+    });
+    expect(pdf.status).toBe(200);
+    expect(pdf.headers["content-type"]).toContain("application/pdf");
+    expect(pdf.body.slice(0, 4).toString()).toBe("%PDF");
   });
 
   test("keeps new accounts pending until the admin grants access", async () => {

@@ -1,5 +1,44 @@
 <%- include("partials/header") %>
-<section class="section invoice-sheet"><div class="invoice-heading"><div><p class="eyebrow">Comprobante</p><h1><%= invoice.invoice_number %></h1></div><button class="button primary" onclick="window.print()">Imprimir / Guardar PDF</button></div>
-<div class="invoice-grid"><div><span>Cliente</span><strong><%= invoice.member_name %></strong><small><%= invoice.email %></small></div><div><span>Plan</span><strong><%= invoice.plan_name %></strong></div><div><span>Valor</span><strong>$<%= Number(invoice.amount).toLocaleString("es-CO") %></strong></div><div><span>Método</span><strong><%= invoice.payment_method %></strong></div><div><span>Período</span><strong><%= invoice.period_start %> — <%= invoice.period_end %></strong></div><div><span>Fecha</span><strong><%= invoice.issued_at %></strong></div></div>
-<p class="legal-notice">Completar antes de facturar con razón social, NIT y dirección del establecimiento.</p></section>
+<section class="section invoice-sheet">
+  <div class="invoice-heading">
+    <div>
+      <p class="eyebrow">Factura / recibo de pago</p>
+      <h1><%= invoice.invoice_number %></h1>
+      <p>Documento generado al confirmar el pago de la membresía.</p>
+    </div>
+    <div class="invoice-actions">
+      <a class="button primary" href="/admin/invoices/<%= invoice.invoice_id %>/pdf">Descargar PDF</a>
+      <button class="button ghost" type="button" onclick="window.print()">Imprimir</button>
+    </div>
+  </div>
+
+  <div class="invoice-business">
+    <div><strong><%= business.name %></strong><span><%= business.nit %></span><span><%= business.address %></span></div>
+    <div><span><%= business.email %></span><span><%= business.phone %></span><small>Emitida: <%= invoice.issued_at %></small></div>
+  </div>
+
+  <div class="invoice-section-title"><span>Cliente</span><small>Persona que adquirió el servicio</small></div>
+  <div class="invoice-grid client-grid">
+    <div><span>Nombre</span><strong><%= invoice.member_name %></strong></div>
+    <div><span>Correo</span><strong><%= invoice.email %></strong></div>
+    <div><span>Teléfono</span><strong><%= invoice.phone || "No registrado" %></strong></div>
+  </div>
+
+  <div class="invoice-section-title"><span>Detalle de la compra</span><small>Servicio cubierto por este pago</small></div>
+  <div class="invoice-purchase">
+    <div><span>Concepto</span><strong><%= invoice.concept || `Membresía ${invoice.plan_name}` %></strong><small><%= invoice.benefits %></small></div>
+    <div><span>Vigencia adquirida</span><strong><%= invoice.period_start %> a <%= invoice.period_end %></strong><small><%= invoice.duration_days %> días de acceso</small></div>
+    <div class="invoice-total"><span>Total pagado</span><strong>$<%= Number(invoice.amount).toLocaleString("es-CO") %> COP</strong><small>Estado: Pagado</small></div>
+  </div>
+
+  <div class="invoice-section-title"><span>Información del pago</span><small>Trazabilidad de la operación</small></div>
+  <div class="invoice-grid payment-grid">
+    <div><span>Método</span><strong><%= invoice.payment_method %></strong></div>
+    <div><span>Referencia</span><strong><%= invoice.reference || "Pago en efectivo" %></strong></div>
+    <div><span>Recibido por</span><strong><%= invoice.received_by || "Administración Gym Infinity" %></strong></div>
+  </div>
+  <% if (invoice.notes) { %><div class="invoice-note"><strong>Observación</strong><p><%= invoice.notes %></p></div><% } %>
+
+  <p class="legal-notice">Este documento certifica la recepción del pago y describe el servicio adquirido. No reemplaza la factura electrónica exigible cuando aplique la normativa tributaria.</p>
+</section>
 <%- include("partials/footer") %>

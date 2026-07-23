@@ -127,6 +127,8 @@ function createSchema(db) {
       period_end TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'pagado',
       notes TEXT,
+      concept TEXT,
+      received_by TEXT,
       paid_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
       FOREIGN KEY (membership_id) REFERENCES memberships(id)
@@ -163,6 +165,8 @@ function createSchema(db) {
 
 function migrateSchema(db) {
   db.run("ALTER TABLE users ADD COLUMN password_hash TEXT", () => {});
+  db.run("ALTER TABLE payments ADD COLUMN concept TEXT", () => {});
+  db.run("ALTER TABLE payments ADD COLUMN received_by TEXT", () => {});
   db.run("ALTER TABLE users ADD COLUMN phone TEXT", () => {});
   db.run("ALTER TABLE users ADD COLUMN goal TEXT", () => {});
   db.run("ALTER TABLE users ADD COLUMN access_granted INTEGER NOT NULL DEFAULT 1", () => {});

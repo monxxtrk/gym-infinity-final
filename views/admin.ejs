@@ -99,17 +99,20 @@
     <div class="admin-grid billing-grid">
       <form class="form-panel accent-panel" action="/admin/payments" method="post">
         <h3>Registrar un pago</h3>
+        <p class="form-intro">Confirma quién paga, qué adquiere y cómo se recibió el dinero. Al guardar se activa la vigencia y se crea la factura.</p>
         <label>Cliente<select required name="member_id"><option value="">Seleccionar cliente</option><% members.forEach((member) => { %><option value="<%= member.id %>"><%= member.name %> · <%= member.plan_name %></option><% }) %></select></label>
+        <label>Concepto facturado<input name="concept" maxlength="140" placeholder="Ej.: Mensualidad Performance - julio"></label>
         <div class="form-row"><label>Valor<input required type="number" min="1" name="amount" placeholder="119000"></label><label>Fecha inicial<input required type="date" name="period_start" value="<%= new Date().toISOString().slice(0, 10) %>"></label></div>
-        <label>Método<select required name="payment_method"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Nequi</option><option>Daviplata</option></select></label>
-        <label>Referencia<input name="reference" maxlength="80" placeholder="Número de transacción (opcional)"></label>
-        <label>Nota<textarea name="notes" rows="2" maxlength="300" placeholder="Observación interna"></textarea></label>
-        <button class="button primary" type="submit">Confirmar pago y generar comprobante</button>
+        <label>Método de pago<select required name="payment_method"><option value="">Seleccionar método</option><option>Efectivo</option><option>Transferencia bancaria</option><option>Tarjeta / datáfono</option><option>Nequi</option><option>Daviplata</option></select></label>
+        <label>Referencia o número de transacción<input name="reference" maxlength="80" placeholder="Obligatoria excepto para efectivo"><small class="field-hint">Para transferencias y pagos digitales, copia la referencia del comprobante.</small></label>
+        <label>Observaciones<textarea name="notes" rows="2" maxlength="300" placeholder="Descuento, acuerdo, detalle adicional o responsable del pago"></textarea></label>
+        <div class="payment-confirmation"><span>✓ Activa o renueva la membresía</span><span>✓ Registra quién recibió el pago</span><span>✓ Genera factura descargable en PDF</span></div>
+        <button class="button primary" type="submit">Confirmar pago y generar factura</button>
       </form>
       <section class="table-panel">
         <div class="panel-title"><div><p class="eyebrow">Últimos movimientos</p><h3>Historial de pagos</h3></div><span class="status ok"><%= payments.length %> registros</span></div>
         <div class="table-scroll"><table><thead><tr><th>Comprobante</th><th>Cliente</th><th>Período</th><th>Método</th><th>Valor</th></tr></thead><tbody>
-          <% payments.forEach((payment) => { %><tr><td><a class="text-link" href="/admin/invoices/<%= payment.invoice_id %>"><strong><%= payment.invoice_number %></strong></a><small><%= payment.paid_at.slice(0, 10) %></small></td><td><%= payment.member_name %><small><%= payment.plan_name %></small></td><td><%= payment.period_start %><small>hasta <%= payment.period_end %></small></td><td><%= payment.payment_method %></td><td><strong>$<%= Number(payment.amount).toLocaleString("es-CO") %></strong></td></tr><% }) %>
+          <% payments.forEach((payment) => { %><tr><td><a class="text-link" href="/admin/invoices/<%= payment.invoice_id %>"><strong><%= payment.invoice_number %></strong></a><small><%= payment.paid_at.slice(0, 10) %></small><a class="invoice-download-link" href="/admin/invoices/<%= payment.invoice_id %>/pdf">Descargar PDF</a></td><td><%= payment.member_name %><small><%= payment.plan_name %></small></td><td><%= payment.period_start %><small>hasta <%= payment.period_end %></small></td><td><span class="payment-method"><%= payment.payment_method %></span><small><%= payment.reference || "Sin referencia" %></small></td><td><strong>$<%= Number(payment.amount).toLocaleString("es-CO") %></strong><small>Pagado</small></td></tr><% }) %>
           <% if (!payments.length) { %><tr><td colspan="5" class="empty-state">Aún no hay pagos registrados.</td></tr><% } %>
         </tbody></table></div>
       </section>
@@ -185,13 +188,13 @@
   </section>
 
   <details class="content-manager audit-manager">
-    <summary>Registro de actividad administrativa</summary>
+    <summary><span>Actividad reciente del equipo</span><small>Seguimiento de cambios importantes realizados desde el panel</small></summary>
     <div class="table-scroll">
-      <table>
-        <thead><tr><th>Fecha</th><th>Acción</th><th>Ruta</th><th>Estado</th></tr></thead>
+      <table class="activity-table">
+        <thead><tr><th>Fecha y hora</th><th>Responsable</th><th>Actividad</th><th>Resultado</th></tr></thead>
         <tbody>
           <% auditLogs.forEach((item) => { %>
-            <tr><td><%= item.created_at %></td><td><%= item.action %></td><td><%= item.path %></td><td><%= item.status_code %></td></tr>
+            <tr><td><%= item.created_at %></td><td><strong><%= item.actor_name || "Sistema" %></strong></td><td><%= item.action_label %><small><%= item.action %> · <%= item.path %></small></td><td><span class="status <%= item.status_class %>"><%= item.status_label %></span></td></tr>
           <% }) %>
           <% if (!auditLogs.length) { %><tr><td colspan="4" class="empty-state">Aún no hay actividad registrada.</td></tr><% } %>
         </tbody>

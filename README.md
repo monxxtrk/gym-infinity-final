@@ -20,7 +20,7 @@ El primer acceso puede tardar unos segundos mientras el servicio alojado inicia.
 - Moderación previa de comentarios.
 - Cambio y solicitud de recuperación de contraseña.
 - Exportaciones CSV de clientes y pagos.
-- Comprobantes imprimibles o guardables como PDF.
+- Facturas y recibos descargables en PDF con concepto, vigencia, método, referencia y responsable del cobro.
 - Auditoría de acciones administrativas.
 - Protección CSRF, Helmet, rate limiting, sesiones HTTP-only y contraseñas con bcrypt.
 - Política de privacidad, términos y aviso de salud.
