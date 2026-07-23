@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const PDFDocument = require("pdfkit");
+const path = require("path");
 const { all, get, run, upsertAdminUser } = require("./database");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -337,10 +339,12 @@ function routes(db) {
         all(db, "SELECT id, name, email, phone, goal, access_granted, created_at FROM users WHERE role = 'client' ORDER BY created_at DESC"),
         all(db, `SELECT password_reset_requests.*, users.name, users.email FROM password_reset_requests
           JOIN users ON users.id = password_reset_requests.user_id WHERE password_reset_requests.status = 'pendiente' ORDER BY created_at DESC`),
-        all(db, "SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 30"),
+        all(db, `SELECT audit_logs.*, users.name AS actor_name FROM audit_logs
+          LEFT JOIN users ON users.id = audit_logs.user_id ORDER BY audit_logs.created_at DESC LIMIT 30`),
         all(db, "SELECT id, name, email, phone, role, access_granted, created_at FROM users WHERE role IN ('admin', 'staff') ORDER BY role, name")
       ]);
-      res.render("admin", { title: "Panel administrativo", members, leads, attendance, stats, plans, routines, products, nutritionPlans, testimonials, payments, userAccounts, passwordRequests, auditLogs, teamAccounts });
+      const activityLogs = auditLogs.map(describeAuditAction);
+      res.render("admin", { title: "Panel administrativo", members, leads, attendance, stats, plans, routines, products, nutritionPlans, testimonials, payments, userAccounts, passwordRequests, auditLogs: activityLogs, teamAccounts });
     } catch (err) {
       next(err);
     }
@@ -443,15 +447,19 @@ function routes(db) {
 
   router.get("/admin/invoices/:id", requireAuth, async (req, res, next) => {
     try {
-      const invoice = await get(db, `SELECT invoices.*, payments.*, members.name AS member_name, members.email,
-        memberships.name AS plan_name FROM invoices JOIN payments ON payments.id = invoices.payment_id
-        JOIN members ON members.id = payments.member_id JOIN memberships ON memberships.id = payments.membership_id
-        WHERE invoices.id = ?`, [Number(req.params.id)]);
+      const invoice = await getInvoice(db, Number(req.params.id));
       if (!invoice) return res.status(404).render("404", { title: "Comprobante no encontrado" });
-      res.render("invoice", { title: invoice.invoice_number, invoice });
+      res.render("invoice", { title: invoice.invoice_number, invoice, business: getBusinessDetails() });
     } catch (err) { next(err); }
   });
 
+  router.get("/admin/invoices/:id/pdf", requireAuth, async (req, res, next) => {
+    try {
+      const invoice = await getInvoice(db, Number(req.params.id));
+      if (!invoice) return res.status(404).render("404", { title: "Comprobante no encontrado" });
+      createInvoicePdf(res, invoice, getBusinessDetails());
+    } catch (err) { next(err); }
+  });
   router.post("/admin/users/:id/access", requireAuth, async (req, res, next) => {
     try {
       const granted = req.body.access_granted === "1" ? 1 : 0;
@@ -529,24 +537,32 @@ function routes(db) {
   router.post("/admin/payments", requireAuth, async (req, res, next) => {
     try {
       const memberId = Number(req.body.member_id);
-      const member = await get(db, `SELECT members.*, memberships.duration_days, memberships.price
+      const member = await get(db, `SELECT members.*, memberships.name AS plan_name, memberships.duration_days, memberships.price, memberships.benefits
         FROM members JOIN memberships ON memberships.id = members.membership_id WHERE members.id = ?`, [memberId]);
       if (!member) {
         req.session.flash = { type: "error", text: "Selecciona un cliente valido." };
         return res.redirect("/admin#facturacion");
       }
       const amount = Number(req.body.amount);
+      const paymentMethod = clean(req.body.payment_method);
+      const reference = clean(req.body.reference || "");
+      const allowedMethods = new Set(["Efectivo", "Transferencia bancaria", "Tarjeta / datáfono", "Nequi", "Daviplata"]);
       const start = clean(req.body.period_start) || new Date().toISOString().slice(0, 10);
       const end = addDays(start, member.duration_days);
-      if (!amount || amount < 1) {
-        req.session.flash = { type: "error", text: "Ingresa un valor de pago valido." };
+      if (!amount || amount < 1 || !allowedMethods.has(paymentMethod)) {
+        req.session.flash = { type: "error", text: "Revisa el valor y el método de pago." };
         return res.redirect("/admin#facturacion");
       }
+      if (paymentMethod !== "Efectivo" && !reference) {
+        req.session.flash = { type: "error", text: "Agrega la referencia o número de transacción para pagos no realizados en efectivo." };
+        return res.redirect("/admin#facturacion");
+      }
+      const concept = clean(req.body.concept || "") || `Membresía ${member.plan_name} - ${member.duration_days} días`;
       const payment = await run(db, `INSERT INTO payments
-        (member_id, membership_id, amount, payment_method, reference, period_start, period_end, status, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'pagado', ?)`, [
-        memberId, member.membership_id, amount, clean(req.body.payment_method),
-        clean(req.body.reference || ""), start, end, clean(req.body.notes || "")
+        (member_id, membership_id, amount, payment_method, reference, period_start, period_end, status, notes, concept, received_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pagado', ?, ?, ?)`, [
+        memberId, member.membership_id, amount, paymentMethod,
+        reference, start, end, clean(req.body.notes || ""), concept, req.session.user.email
       ]);
       const invoiceNumber = `GI-${new Date().getFullYear()}-${String(payment.id).padStart(5, "0")}`;
       await run(db, "INSERT INTO invoices (payment_id, invoice_number) VALUES (?, ?)", [payment.id, invoiceNumber]);
@@ -849,6 +865,119 @@ function sendCsv(res, filename, rows) {
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
   res.send(`\uFEFF${csv}`);
+}
+
+function getInvoice(db, invoiceId) {
+  return get(db, `SELECT invoices.id AS invoice_id, invoices.invoice_number, invoices.issued_at,
+    payments.id AS payment_id, payments.amount, payments.payment_method, payments.reference,
+    payments.period_start, payments.period_end, payments.status, payments.notes, payments.paid_at,
+    payments.concept, payments.received_by, members.name AS member_name, members.email,
+    members.phone, members.goal, memberships.name AS plan_name, memberships.duration_days,
+    memberships.benefits FROM invoices JOIN payments ON payments.id = invoices.payment_id
+    JOIN members ON members.id = payments.member_id JOIN memberships ON memberships.id = payments.membership_id
+    WHERE invoices.id = ?`, [invoiceId]);
+}
+
+function getBusinessDetails() {
+  return {
+    name: process.env.BUSINESS_NAME || "Gym Infinity",
+    nit: process.env.BUSINESS_NIT || "NIT pendiente de configuración",
+    address: process.env.BUSINESS_ADDRESS || "Dirección pendiente de configuración",
+    email: process.env.BUSINESS_EMAIL || process.env.ADMIN_EMAIL || "",
+    phone: process.env.BUSINESS_PHONE || ""
+  };
+}
+
+function createInvoicePdf(res, invoice, business) {
+  const doc = new PDFDocument({ size: "A4", margin: 48, info: { Title: `${invoice.invoice_number} - Gym Infinity`, Author: business.name } });
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${invoice.invoice_number}.pdf"`);
+  doc.pipe(res);
+
+  const purple = "#6d28d9";
+  const pink = "#ec4899";
+  const ink = "#21152f";
+  const muted = "#716477";
+  const pale = "#faf5ff";
+  const pageWidth = doc.page.width - 96;
+  const logoPath = path.join(__dirname, "..", "public", "images", "gym-infinity-emblem-v7.png");
+
+  doc.roundedRect(48, 42, pageWidth, 94, 18).fill(ink);
+  try { doc.image(logoPath, 62, 55, { fit: [64, 64] }); } catch (_) {}
+  doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(22).text(business.name, 138, 62);
+  doc.fillColor("#eadcff").font("Helvetica").fontSize(9).text([business.nit, business.address, business.email, business.phone].filter(Boolean).join("  |  "), 138, 92, { width: 390 });
+
+  doc.fillColor(purple).font("Helvetica-Bold").fontSize(10).text("FACTURA / RECIBO DE PAGO", 48, 164);
+  doc.fillColor(ink).fontSize(25).text(invoice.invoice_number, 48, 181);
+  doc.fillColor(muted).font("Helvetica").fontSize(10).text(`Emitida: ${formatInvoiceDate(invoice.issued_at)}`, 48, 214);
+  doc.roundedRect(410, 164, 137, 58, 12).fill(pale);
+  doc.fillColor(muted).fontSize(9).text("ESTADO", 425, 178);
+  doc.fillColor(purple).font("Helvetica-Bold").fontSize(14).text("PAGADO", 425, 194);
+
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(12).text("Información del cliente", 48, 256);
+  doc.roundedRect(48, 276, pageWidth, 82, 12).fill("#fcfbfd");
+  doc.fillColor(ink).fontSize(12).text(invoice.member_name, 64, 292);
+  doc.fillColor(muted).font("Helvetica").fontSize(9.5)
+    .text(invoice.email, 64, 313)
+    .text(invoice.phone || "Sin teléfono registrado", 64, 330);
+  doc.fillColor(muted).fontSize(9).text("OBJETIVO", 340, 292);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10.5).text(invoice.goal || "No especificado", 340, 309, { width: 190 });
+
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(12).text("Detalle de lo adquirido", 48, 390);
+  doc.roundedRect(48, 412, pageWidth, 34, 8).fill(purple);
+  doc.fillColor("#ffffff").fontSize(9).text("CONCEPTO", 62, 425).text("VIGENCIA", 330, 425).text("VALOR", 468, 425);
+  doc.rect(48, 446, pageWidth, 86).fillAndStroke("#ffffff", "#eadff0");
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(11).text(invoice.concept || `Membresía ${invoice.plan_name}`, 62, 463, { width: 245 });
+  doc.fillColor(muted).font("Helvetica").fontSize(9).text(invoice.benefits || "", 62, 484, { width: 245, height: 34 });
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10).text(`${invoice.period_start}\na ${invoice.period_end}`, 330, 464, { width: 115 });
+  doc.fillColor(ink).fontSize(12).text(formatCop(invoice.amount), 458, 465, { width: 75, align: "right" });
+
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(12).text("Información del pago", 48, 562);
+  doc.roundedRect(48, 584, 315, 106, 12).fill(pale);
+  doc.fillColor(muted).font("Helvetica").fontSize(9).text("Método", 64, 600).text("Referencia", 64, 632).text("Recibido por", 64, 664);
+  doc.fillColor(ink).font("Helvetica-Bold").fontSize(10).text(invoice.payment_method, 150, 600, { width: 195 })
+    .text(invoice.reference || "Pago en efectivo", 150, 632, { width: 195 })
+    .text(invoice.received_by || "Administración Gym Infinity", 150, 664, { width: 195 });
+  doc.roundedRect(380, 584, 167, 106, 12).fill(ink);
+  doc.fillColor("#f9a8d4").font("Helvetica-Bold").fontSize(9).text("TOTAL PAGADO", 396, 605);
+  doc.fillColor("#ffffff").fontSize(21).text(formatCop(invoice.amount), 396, 630, { width: 135, align: "right" });
+
+  if (invoice.notes) {
+    doc.fillColor(muted).font("Helvetica").fontSize(9).text(`Observación: ${invoice.notes}`, 48, 704, { width: pageWidth });
+  }
+  doc.moveTo(48, 730).lineTo(547, 730).strokeColor("#eadff0").stroke();
+  doc.fillColor(muted).fontSize(8.5).text("Este documento certifica la recepción del pago y describe el servicio adquirido. No reemplaza la factura electrónica exigible cuando aplique la normativa tributaria.", 48, 742, { width: 499, align: "center" });
+  doc.fillColor(pink).font("Helvetica-Bold").fontSize(8).text("GYM INFINITY  |  FUERZA, BIENESTAR Y SEGUIMIENTO", 48, 780, { width: 499, align: "center" });
+  doc.end();
+}
+
+function describeAuditAction(item) {
+  const rules = [
+    [/\/payments/, "Pago registrado y comprobante generado"],
+    [/\/members\/\d+\/status/, "Estado de membresía actualizado"],
+    [/\/members$/, "Cliente registrado"],
+    [/\/leads/, "Solicitud comercial actualizada"],
+    [/\/attendance/, "Asistencia registrada"],
+    [/\/team/, "Credenciales del equipo actualizadas"],
+    [/\/products\/\d+\/delete/, "Producto eliminado"],
+    [/\/products/, "Catálogo de productos actualizado"],
+    [/\/routines/, "Catálogo de rutinas actualizado"],
+    [/\/nutrition/, "Planes de alimentación actualizados"],
+    [/\/testimonials/, "Comentarios moderados"],
+    [/\/memberships/, "Plan o precio actualizado"]
+  ];
+  const match = rules.find(([pattern]) => pattern.test(item.path));
+  const completed = Number(item.status_code) >= 200 && Number(item.status_code) < 400;
+  return { ...item, action_label: match ? match[1] : "Configuración administrativa actualizada", status_label: completed ? "Completada" : "Revisar", status_class: completed ? "ok" : "expired" };
+}
+
+function formatCop(value) {
+  return `$${Number(value || 0).toLocaleString("es-CO")} COP`;
+}
+
+function formatInvoiceDate(value) {
+  const date = new Date(String(value || "").replace(" ", "T") + "Z");
+  return Number.isNaN(date.getTime()) ? String(value || "") : date.toLocaleString("es-CO", { dateStyle: "long", timeStyle: "short", timeZone: "America/Bogota" });
 }
 
 function defaultRoutineImage() {
