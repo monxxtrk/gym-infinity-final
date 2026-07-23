@@ -27,6 +27,7 @@
         <div><p class="eyebrow">Seguridad y permisos</p><h2>Equipo administrativo</h2></div>
         <p>Crea accesos individuales. Las contraseñas se guardan cifradas y nunca vuelven a mostrarse.</p>
       </div>
+      <details class="admin-guide"><summary>Guía rápida para gestionar el equipo</summary><ul><li>Crea una cuenta diferente para cada persona; evita compartir el acceso principal.</li><li>Asigna “Trabajador” para tareas operativas y “Administrador” solo a personal de confianza.</li><li>Suspende la cuenta cuando una persona deje de trabajar y cambia claves temporales por un canal privado.</li></ul></details>
       <div class="admin-grid">
         <form class="form-panel accent-panel" action="/admin/team" method="post">
           <h3>Crear credenciales</h3>
@@ -76,6 +77,7 @@
 
   <section class="admin-section" id="solicitudes">
     <div class="section-heading"><div><p class="eyebrow">Admisiones</p><h2>Solicitudes y accesos</h2></div><p>Autoriza el acceso sin depender de que exista un pago registrado.</p></div>
+    <details class="admin-guide"><summary>Guía rápida para solicitudes y accesos</summary><ul><li>Revisa nombre, correo, teléfono y objetivo antes de aprobar una cuenta.</li><li>Dar acceso permite entrar a la plataforma aunque todavía no exista un pago.</li><li>Actualiza cada contacto como pendiente, contactado, aprobado o descartado para evitar duplicar gestiones.</li></ul></details>
     <div class="admin-grid">
       <section class="table-panel"><div class="panel-title"><h3>Cuentas registradas</h3><span class="status ok"><%= userAccounts.length %></span></div>
         <div class="request-list"><% userAccounts.forEach((user) => { %><article class="request-card">
@@ -96,6 +98,7 @@
 
   <section class="admin-section" id="facturacion">
     <div class="section-heading"><div><p class="eyebrow">Caja y membresías</p><h2>Facturación y pagos</h2></div><p>Registra pagos y renueva automáticamente la vigencia.</p></div>
+    <details class="admin-guide"><summary>Guía rápida para registrar un pago</summary><ul><li>Confirma el cliente, concepto, valor y fecha inicial antes de guardar.</li><li>Los pagos digitales deben incluir una referencia para facilitar la verificación.</li><li>Después de confirmar, descarga el PDF y entrégalo al cliente como soporte de lo adquirido.</li></ul></details>
     <div class="admin-grid billing-grid">
       <form class="form-panel accent-panel" action="/admin/payments" method="post">
         <h3>Registrar un pago</h3>
@@ -121,6 +124,7 @@
 
   <section class="admin-section" id="clientes">
     <div class="section-heading"><div><p class="eyebrow">Base de clientes</p><h2>Personas y vigencias</h2></div></div>
+    <details class="admin-guide"><summary>Guía rápida para clientes</summary><ul><li>Registra datos de contacto reales y selecciona el plan correcto.</li><li>Usa las notas para lesiones, preferencias, horarios o acuerdos importantes.</li><li>Revisa los días restantes y contacta con anticipación a quienes estén próximos a vencer.</li></ul></details>
     <div class="admin-grid">
       <form class="form-panel" action="/admin/members" method="post">
         <h3>Registrar cliente</h3>
@@ -146,6 +150,8 @@
   </section>
 
   <section class="admin-section" id="asistencia">
+    <div class="section-heading"><div><p class="eyebrow">Control de ingreso</p><h2>Asistencia y actividad</h2></div><p>Registra cada visita para llevar un seguimiento básico de constancia.</p></div>
+    <details class="admin-guide"><summary>Guía rápida para asistencia</summary><ul><li>Selecciona al cliente únicamente cuando llegue al gimnasio.</li><li>Agrega una nota corta si deseas identificar el tipo de entrenamiento realizado.</li><li>Consulta las últimas entradas para detectar continuidad o ausencias frecuentes.</li></ul></details>
     <div class="admin-grid">
       <form class="form-panel" action="/admin/attendance" method="post"><p class="eyebrow">Control diario</p><h3>Registrar asistencia</h3><label>Cliente<select required name="member_id"><option value="">Seleccionar</option><% members.forEach((member) => { %><option value="<%= member.id %>"><%= member.name %></option><% }) %></select></label><label>Nota<input name="note" maxlength="160" placeholder="Ej: Pierna + cardio"></label><button class="button primary" type="submit">Marcar entrada</button></form>
       <section class="table-panel"><p class="eyebrow">Actividad</p><h3>Últimas entradas</h3><div class="table-scroll"><table><thead><tr><th>Cliente</th><th>Fecha</th><th>Nota</th></tr></thead><tbody><% attendance.forEach((item) => { %><tr><td><strong><%= item.member_name %></strong></td><td><%= item.check_in %></td><td><%= item.note || "Entrenamiento" %></td></tr><% }) %></tbody></table></div></section>
@@ -154,6 +160,7 @@
 
   <section class="admin-section" id="planes">
     <div class="section-heading"><div><p class="eyebrow">Configuración comercial</p><h2>Planes y precios</h2></div><p>Los cambios se reflejan inmediatamente en la página pública.</p></div>
+    <details class="admin-guide"><summary>Guía rápida para planes y precios</summary><ul><li>Verifica precio, duración y beneficios antes de guardar.</li><li>Los cambios afectan lo que verá el cliente y los nuevos periodos registrados.</li><li>Marca como recomendado solamente el plan que quieras destacar comercialmente.</li></ul></details>
     <div class="plan-editor-grid"><% plans.forEach((plan) => { %><form class="form-panel plan-editor" action="/admin/memberships/<%= plan.id %>" method="post">
       <label>Nombre<input required name="name" value="<%= plan.name %>"></label>
       <div class="form-row"><label>Precio COP<input required type="number" min="1" name="price" value="<%= plan.price %>"></label><label>Duración (días)<input required type="number" min="1" name="duration_days" value="<%= plan.duration_days %>"></label></div>
@@ -165,6 +172,7 @@
 
   <section class="admin-section" id="contenido">
     <div class="section-heading"><div><p class="eyebrow">Catálogo digital</p><h2>Control total del contenido</h2></div><p>Crea, edita o elimina lo que aparece en la aplicación.</p></div>
+    <details class="admin-guide"><summary>Guía rápida para el contenido</summary><ul><li>Comprueba títulos, ortografía, imágenes y nivel de acceso antes de publicar.</li><li>Usa “Gratis” como muestra pública y “Premium” para contenido asociado a membresías.</li><li>Eliminar es definitivo; edita primero cuando solo necesites corregir información.</li></ul></details>
     <div class="content-summary"><span><strong><%= routines.length %></strong> rutinas</span><span><strong><%= nutritionPlans.length %></strong> alimentaciones</span><span><strong><%= products.length %></strong> productos</span><span><strong><%= testimonials.length %></strong> comentarios</span></div>
     <div class="create-content-grid">
     <details class="content-manager"><summary>Nueva rutina</summary><form class="form-panel" action="/admin/routines" method="post"><label>Título<input required name="title"></label><div class="form-row"><label>Nivel<select name="level"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Todos</option></select></label><label>Acceso<select name="access_level"><option value="gratis">Gratis</option><option value="premium">Premium</option></select></label></div><label>Enfoque<input required name="focus"></label><div class="form-row"><label>Duración<input required name="duration"></label><label>Frecuencia<input required name="frequency"></label></div><label>Descripción<textarea required name="description"></textarea></label><label>Ejercicios<textarea required name="exercises" placeholder="Separados con |"></textarea></label><label>Imagen URL<input name="image_url"></label><button class="button primary">Agregar rutina</button></form></details>

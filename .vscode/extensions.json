@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "digitalbrainstem.javascript-ejs-support",
+    "alexcvzz.vscode-sqlite",
+    "christian-kohler.path-intellisense"
+  ]
+}
