@@ -1,0 +1,50 @@
+<%- include("partials/header") %>
+<section class="dashboard">
+  <div class="dashboard-heading">
+    <div>
+      <p class="eyebrow">Mi cuenta</p>
+      <h1>Hola, <%= currentUser.name %></h1>
+    </div>
+    <div class="button-row">
+      <a class="button primary" href="/rutinas">Rutinas</a>
+      <a class="button primary" href="/alimentacion">Alimentación</a>
+      <a class="button primary" href="/tienda">Tienda</a>
+    </div>
+  </div>
+  <div class="account-grid triple">
+    <section class="table-panel">
+      <h2>Rutinas recomendadas</h2>
+      <% routines.forEach((routine) => { %>
+        <a class="mini-link" href="/rutinas/<%= routine.id %>">
+          <strong><%= routine.title %></strong>
+          <span><%= routine.level %> / <%= routine.duration %></span>
+        </a>
+      <% }) %>
+    </section>
+    <section class="table-panel">
+      <h2>Alimentación</h2>
+      <% nutritionPlans.forEach((plan) => { %>
+        <a class="mini-link" href="/alimentacion">
+          <strong><%= plan.title %></strong>
+          <span><%= plan.goal %> / <%= plan.calories %></span>
+        </a>
+      <% }) %>
+    </section>
+    <section class="table-panel">
+      <h2>Productos destacados</h2>
+      <% products.forEach((product) => { %>
+        <a class="mini-link" href="/tienda/<%= product.id %>">
+          <strong><%= product.name %></strong>
+          <span>$<%= Number(product.price).toLocaleString("es-CO") %></span>
+        </a>
+      <% }) %>
+    </section>
+  </div>
+  <form class="form-panel account-security" id="seguridad" action="/mi-cuenta/password" method="post">
+    <div><p class="eyebrow">Seguridad</p><h2>Cambiar contraseña</h2><p>Usa al menos 10 caracteres y evita reutilizar claves.</p></div>
+    <label>Contraseña actual<input required type="password" name="current_password" autocomplete="current-password"></label>
+    <label>Nueva contraseña<input required type="password" name="new_password" minlength="10" autocomplete="new-password"></label>
+    <button class="button primary">Actualizar contraseña</button>
+  </form>
+</section>
+<%- include("partials/footer") %>

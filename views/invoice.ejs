@@ -1,0 +1,5 @@
+<%- include("partials/header") %>
+<section class="section invoice-sheet"><div class="invoice-heading"><div><p class="eyebrow">Comprobante</p><h1><%= invoice.invoice_number %></h1></div><button class="button primary" onclick="window.print()">Imprimir / Guardar PDF</button></div>
+<div class="invoice-grid"><div><span>Cliente</span><strong><%= invoice.member_name %></strong><small><%= invoice.email %></small></div><div><span>Plan</span><strong><%= invoice.plan_name %></strong></div><div><span>Valor</span><strong>$<%= Number(invoice.amount).toLocaleString("es-CO") %></strong></div><div><span>Método</span><strong><%= invoice.payment_method %></strong></div><div><span>Período</span><strong><%= invoice.period_start %> — <%= invoice.period_end %></strong></div><div><span>Fecha</span><strong><%= invoice.issued_at %></strong></div></div>
+<p class="legal-notice">Completar antes de facturar con razón social, NIT y dirección del establecimiento.</p></section>
+<%- include("partials/footer") %>

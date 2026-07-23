@@ -1,0 +1,16 @@
+<%- include("partials/header") %>
+<section class="section detail-layout product-detail">
+  <article class="detail-panel">
+    <img src="<%= product.image_url %>" alt="<%= product.name %>">
+    <div>
+      <span class="pill"><%= product.category %></span>
+      <h1><%= product.name %></h1>
+      <p><%= product.description %></p>
+      <p class="price">$<%= Number(String(product.price).replace(/\D/g, "") || 0).toLocaleString("es-CO") %></p>
+      <p class="notice">Para finalizar la compra, habla con administración. Este módulo deja el producto listo para presentar y validar disponibilidad.</p>
+      <a class="button primary" href="/#contacto">Hablar con administración</a>
+      <a class="button ghost" href="/tienda">Volver a tienda</a>
+    </div>
+  </article>
+</section>
+<%- include("partials/footer") %>

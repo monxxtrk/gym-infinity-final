@@ -1,0 +1,16 @@
+<%- include("partials/header") %>
+<section class="auth-page">
+  <form class="form-panel auth-card" action="<%= mode === "admin" ? "/admin-login" : "/login" %>" method="post">
+    <p class="eyebrow"><%= mode === "admin" ? "Administración" : "Cuenta fitness" %></p>
+    <h1><%= mode === "admin" ? "Acceso seguro" : "Iniciar sesión" %></h1>
+    <p class="auth-copy"><%= mode === "admin" ? "Usa las credenciales administrativas del proyecto." : "Entra para ver la tienda y continuar tu proceso." %></p>
+    <label>Correo<input required type="email" name="email" autocomplete="email"></label>
+    <label>Contraseña<input required type="password" name="password" autocomplete="current-password"></label>
+    <button class="button primary" type="submit"><%= mode === "admin" ? "Entrar al panel" : "Entrar" %></button>
+    <% if (mode !== "admin") { %>
+      <a class="button ghost" href="/registro">Crear cuenta</a>
+      <a class="text-link" href="/recuperar-acceso">¿Olvidaste tu contraseña?</a>
+    <% } %>
+  </form>
+</section>
+<%- include("partials/footer") %>

@@ -1,0 +1,19 @@
+<%- include("partials/header") %>
+<section class="page-hero compact">
+  <p class="eyebrow">Membresias</p>
+  <h1>Elige el plan correcto para tu meta</h1>
+</section>
+<section class="section">
+  <div class="plan-grid">
+    <% plans.forEach((plan) => { %>
+      <article class="plan-card <%= plan.featured ? "featured" : "" %>">
+        <span class="pill"><%= plan.featured ? "Recomendado" : "Disponible" %></span>
+        <h2><%= plan.name %></h2>
+        <p class="price">$<%= Number(plan.price).toLocaleString("es-CO") %><small>/mes</small></p>
+        <p><%= plan.benefits %></p>
+        <a class="button primary" href="/#contacto">Solicitar valoración</a>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<%- include("partials/footer") %>

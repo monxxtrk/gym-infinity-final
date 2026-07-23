@@ -1,0 +1,25 @@
+<%- include("partials/header") %>
+<section class="auth-page">
+  <form class="form-panel auth-card" action="/registro" method="post">
+    <p class="eyebrow">Nueva cuenta</p>
+    <h1>Crear cuenta</h1>
+    <p class="auth-copy">Registrate para entrar a tienda y guardar tu proceso en Gym Infinity.</p>
+    <label>Nombre<input required name="name" maxlength="80" autocomplete="name"></label>
+    <label>Correo<input required type="email" name="email" maxlength="120" autocomplete="email"></label>
+    <label>Teléfono<input required name="phone" minlength="7" maxlength="30" autocomplete="tel"></label>
+    <label>Objetivo
+      <select required name="goal">
+        <option value="">Seleccionar</option>
+        <option>Ganar fuerza</option>
+        <option>Bajar grasa</option>
+        <option>Aumentar masa muscular</option>
+        <option>Mejorar condición</option>
+      </select>
+    </label>
+    <label>Contraseña<input required type="password" name="password" minlength="8" autocomplete="new-password"></label>
+    <label class="check-label"><input required type="checkbox" name="privacy_consent" value="1"> Acepto la <a href="/privacidad">política de privacidad</a> y los <a href="/terminos">términos</a>.</label>
+    <button class="button primary" type="submit">Crear cuenta</button>
+    <a class="button ghost" href="/login">Ya tengo cuenta</a>
+  </form>
+</section>
+<%- include("partials/footer") %>

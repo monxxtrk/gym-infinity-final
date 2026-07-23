@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: gym-infinity
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_FILE
+        value: /var/data/gyminfinity.db
+      - key: SESSION_DATABASE_FILE
+        value: /var/data/sessions.sqlite
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: APP_URL
+        sync: false
+    disk:
+      name: gym-infinity-data
+      mountPath: /var/data
+      sizeGB: 1

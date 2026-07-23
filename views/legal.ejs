@@ -1,0 +1,25 @@
+<%- include("partials/header") %>
+<section class="page-hero compact"><p class="eyebrow">Información importante</p><h1><%= title %></h1></section>
+<article class="section legal-document">
+  <% if (document === "privacy") { %>
+    <h2>Política de tratamiento de datos</h2><p><strong>Actualización:</strong> 22 de julio de 2026.</p>
+    <p>Gym Infinity recopila nombre, correo, teléfono, objetivos, membresía, pagos, asistencia y los datos entregados voluntariamente para administrar sus servicios.</p>
+    <h3>Finalidades</h3><p>Gestionar solicitudes, cuentas, membresías, pagos, soporte, seguridad y comunicaciones del servicio. Los datos no se comercializan.</p>
+    <h3>Derechos</h3><p>Puedes conocer, actualizar, rectificar o solicitar la supresión de tus datos, revocar autorizaciones y presentar consultas o reclamos ante Gym Infinity.</p>
+    <h3>Seguridad y conservación</h3><p>Se aplican controles de acceso, contraseñas cifradas, sesiones protegidas y copias de seguridad. La información se conserva durante la relación y el tiempo exigido legalmente.</p>
+    <p>Texto basado en la Ley 1581 de 2012. Debe completarse con razón social, NIT, dirección y correo real del responsable.</p>
+  <% } else if (document === "terms") { %>
+    <h2>Términos y condiciones</h2><p><strong>Actualización:</strong> 22 de julio de 2026.</p>
+    <h3>Servicio</h3><p>La plataforma permite consultar planes, contenidos y productos. Los precios, duración y beneficios vigentes son los publicados o confirmados por administración.</p>
+    <h3>Pagos y cancelaciones</h3><p>Todo pago debe contar con comprobante. Las condiciones de retracto, cancelación, devolución y garantía deben completarse con la política comercial definitiva.</p>
+    <h3>Uso responsable</h3><p>La persona usuaria debe suministrar información veraz, proteger sus credenciales y seguir las instrucciones de seguridad.</p>
+    <h3>Consumidor</h3><p>Antes de vender en línea deben publicarse razón social, NIT, dirección, contacto y condiciones de garantía. Consulta la <a href="https://www.sic.gov.co/" rel="noopener noreferrer">Superintendencia de Industria y Comercio</a>.</p>
+  <% } else { %>
+    <h2>Aviso de salud, entrenamiento y nutrición</h2><p>Los contenidos son educativos y generales. No sustituyen diagnóstico, tratamiento médico ni nutrición clínica individual.</p>
+    <h3>Antes de comenzar</h3><p>Consulta a un profesional si tienes lesiones, embarazo, enfermedades cardiovasculares o metabólicas, dolor persistente u otra condición relevante.</p>
+    <h3>Uso seguro</h3><p>Detén la actividad ante dolor agudo, mareo o dificultad respiratoria inusual. Informa al equipo sobre limitaciones antes de entrenar.</p>
+    <h3>Alimentación</h3><p>Los ejemplos deben adaptarse a alergias, condiciones médicas y requerimientos individuales por un profesional idóneo.</p>
+  <% } %>
+  <div class="legal-notice">Documento operativo inicial. Recomendamos revisión jurídica colombiana antes de iniciar cobros públicos.</div>
+</article>
+<%- include("partials/footer") %>

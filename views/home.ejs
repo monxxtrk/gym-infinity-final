@@ -1,0 +1,176 @@
+<%- include("partials/header") %>
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Centro de entrenamiento premium</p>
+    <h1>Gym Infinity</h1>
+    <p class="hero-text">Rutinas inteligentes, planes claros, tienda fitness y seguimiento real para transformar fuerza, condición y disciplina.</p>
+    <div class="hero-actions">
+      <a class="button primary" href="#contacto">Agendar valoración</a>
+      <a class="button ghost" href="/rutinas">Explorar rutinas</a>
+    </div>
+    <div class="hero-metrics">
+      <span><strong>10</strong> programas base</span>
+      <span><strong>3</strong> planes activos</span>
+      <span><strong>100%</strong> seguimiento</span>
+    </div>
+  </div>
+</section>
+
+<section class="section split">
+  <div>
+    <p class="eyebrow">Método Infinity</p>
+    <h2>Entrenar con estructura cambia todo.</h2>
+  </div>
+  <div class="feature-grid">
+    <article><span>01</span><h3>Valoración inicial</h3><p>Objetivo, nivel, historial y punto de partida antes de asignar rutina.</p></article>
+    <article><span>02</span><h3>Rutina por objetivo</h3><p>Fuerza, gluteo, movilidad, cardio o recomposicion con progresion clara.</p></article>
+    <article><span>03</span><h3>Medición semanal</h3><p>Asistencia, cargas y avances visibles en el panel administrativo.</p></article>
+  </div>
+</section>
+
+<section class="section" id="rutinas">
+  <div class="section-heading">
+    <p class="eyebrow">Programas destacados</p>
+    <h2>Rutinas listas para ejecutar</h2>
+    <a href="/rutinas">Ver todas</a>
+  </div>
+  <div class="routine-grid">
+    <% routines.forEach((routine) => { %>
+      <article class="routine-card">
+        <img src="<%= routine.image_url %>" alt="<%= routine.title %>" loading="lazy">
+        <div>
+          <div class="card-badges"><span class="pill"><%= routine.level %></span><span class="pill access-pill <%= routine.access_level %>"><%= routine.access_level === "premium" ? "Premium" : "Gratis" %></span></div>
+          <h3><%= routine.title %></h3>
+          <p><%= routine.description %></p>
+          <dl>
+            <div><dt>Duración</dt><dd><%= routine.duration %></dd></div>
+            <div><dt>Frecuencia</dt><dd><%= routine.frequency %></dd></div>
+          </dl>
+          <a class="text-link" href="/rutinas/<%= routine.id %>">Ver rutina completa</a>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section nutrition-preview">
+  <div class="section-heading">
+    <p class="eyebrow">Alimentación</p>
+    <h2>Planes de comida para acompanar tu rutina</h2>
+    <a href="/alimentacion">Ver alimentación</a>
+  </div>
+  <div class="nutrition-grid preview">
+    <% nutritionPlans.forEach((plan) => { %>
+      <article class="nutrition-card">
+        <img src="<%= plan.image_url %>" alt="<%= plan.title %>" loading="lazy">
+        <div>
+          <div class="card-badges"><span class="pill"><%= plan.goal %></span><span class="pill access-pill <%= plan.access_level %>"><%= plan.access_level === "premium" ? "Premium" : "Gratis" %></span></div>
+          <h3><%= plan.title %></h3>
+          <p><%= plan.description %></p>
+          <strong><%= plan.calories %></strong>
+          <a class="button primary full" href="/alimentacion">Abrir plan</a>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section dark-band">
+  <div class="section-heading">
+    <p class="eyebrow">Membresias</p>
+    <h2>Planes simples, beneficios claros</h2>
+    <a href="/planes">Comparar planes</a>
+  </div>
+  <div class="plan-grid">
+    <% plans.forEach((plan) => { %>
+      <article class="plan-card <%= plan.featured ? "featured" : "" %>">
+        <span class="pill"><%= plan.featured ? "Mas elegido" : "Plan" %></span>
+        <h3><%= plan.name %></h3>
+        <p class="price">$<%= Number(plan.price).toLocaleString("es-CO") %><small>/mes</small></p>
+        <p><%= plan.benefits %></p>
+        <a class="button primary" href="#contacto">Me interesa</a>
+      </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section store-preview">
+  <div class="section-heading">
+    <p class="eyebrow">Tienda Infinity</p>
+    <h2>Productos para entrenar mejor</h2>
+    <a href="/tienda">Entrar a tienda</a>
+  </div>
+  <div class="product-grid preview">
+    <% products.forEach((product) => { %>
+      <article class="product-card">
+        <img src="<%= product.image_url %>" alt="<%= product.name %>" loading="lazy">
+        <div>
+          <span class="pill"><%= product.category %></span>
+          <h3><%= product.name %></h3>
+          <p><%= product.description %></p>
+          <strong>$<%= Number(String(product.price).replace(/\D/g, "") || 0).toLocaleString("es-CO") %></strong>
+          <a class="button primary full" href="/tienda/<%= product.id %>">Ver producto</a>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section testimonials-showcase" id="comentarios">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Historias Infinity</p>
+      <h2>Resultados que se sienten,<br>experiencias que inspiran.</h2>
+    </div>
+    <div class="rating-summary"><strong>4.9</strong><span>★★★★★<small>Comunidad verificada</small></span></div>
+  </div>
+  <div class="testimonial-grid">
+    <% testimonials.forEach((item) => { %>
+      <article class="testimonial">
+        <div class="testimonial-top"><div class="testimonial-avatar"><%= item.author.slice(0,1).toUpperCase() %></div><div><strong><%= item.author %></strong><span><%= item.goal %></span></div></div>
+        <div class="stars" aria-label="<%= item.rating %> estrellas"><%= "★".repeat(item.rating) %></div>
+        <p>“<%= item.comment %>”</p>
+      </article>
+    <% }) %>
+  </div>
+  <div class="review-callout" id="dejar-comentario">
+    <div><p class="eyebrow">Tu experiencia también cuenta</p><h3>¿Cómo ha sido tu proceso?</h3><p>Comparte tu avance y ayuda a otras personas a comenzar con confianza.</p></div>
+    <form class="comment-form" action="/comentarios" method="post">
+      <div class="form-row"><label>Nombre<input required name="author" maxlength="80" placeholder="Tu nombre"></label><label>Objetivo<input required name="goal" maxlength="120" placeholder="Ej: Ganar fuerza"></label></div>
+      <label>Calificación<select required name="rating"><option value="5">★★★★★ Excelente</option><option value="4">★★★★ Muy buena</option><option value="3">★★★ Buena</option><option value="2">★★ Regular</option><option value="1">★ Mejorable</option></select></label>
+      <label>Comentario<textarea required name="comment" rows="3" maxlength="500" placeholder="Cuéntanos qué cambió en tu entrenamiento..."></textarea></label>
+      <label class="check-label"><input required type="checkbox" name="privacy_consent" value="1"> Acepto la <a href="/privacidad">política de privacidad</a>.</label>
+      <button class="button primary" type="submit">Publicar mi experiencia</button>
+    </form>
+  </div>
+</section>
+
+<section class="section contact contact-premium" id="contacto">
+  <div class="contact-copy">
+    <p class="eyebrow">Valoración sin costo</p>
+    <h2>Tu objetivo merece un plan, no improvisación.</h2>
+    <p>Cuéntanos dónde estás y a dónde quieres llegar. Nuestro equipo revisará tu meta, nivel y disponibilidad para recomendarte el mejor punto de partida.</p>
+    <div class="contact-benefits"><span>✓ Respuesta personalizada</span><span>✓ Sin costo ni compromiso</span><span>✓ Plan según tu nivel</span></div>
+  </div>
+  <form class="form-panel" action="/contacto" method="post">
+    <h3>Solicita tu valoración</h3>
+    <label>Nombre completo<input required name="name" maxlength="80"></label>
+    <label>Correo<input required type="email" name="email" maxlength="120"></label>
+    <label>Teléfono<input required name="phone" minlength="7" maxlength="30"></label>
+    <label>Objetivo
+      <select required name="goal">
+        <option value="">Seleccionar</option>
+        <option>Ganar fuerza</option>
+        <option>Bajar grasa</option>
+        <option>Aumentar masa muscular</option>
+        <option>Mejorar condición</option>
+      </select>
+    </label>
+    <label>Mensaje<textarea name="message" rows="4" maxlength="500"></textarea></label>
+    <label class="check-label"><input required type="checkbox" name="privacy_consent" value="1"> Autorizo el tratamiento de mis datos según la <a href="/privacidad">política de privacidad</a>.</label>
+    <button class="button primary" type="submit">Enviar solicitud</button>
+  </form>
+</section>
+
+<%- include("partials/footer") %>

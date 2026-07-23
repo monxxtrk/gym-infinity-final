@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> | Gym Infinity</title>
+  <meta name="description" content="Gym Infinity: entrenamiento profesional, rutinas, membresías y seguimiento real.">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css?v=20260722-10">
+  <script defer src="/js/main.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand brand-home-button" href="/" aria-label="Volver al inicio de Gym Infinity" title="Volver al inicio">
+        <span class="logo-frame"><img class="brand-logo" src="/images/gym-infinity-emblem-v7.png" alt=""></span>
+        <span class="brand-name">Gym <strong>Infinity</strong><small>Strength · Wellness</small></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" data-nav>
+        <a href="/rutinas">Rutinas</a>
+        <a href="/alimentacion">Alimentación</a>
+        <a href="/planes">Planes</a>
+        <a href="/tienda">Tienda</a>
+        <a href="/#comentarios">Comentarios</a>
+        <a href="/#contacto">Valoración</a>
+        <% if (currentUser) { %>
+          <a class="panel-link" href="<%= currentUser.role === "admin" ? "/admin" : "/mi-cuenta" %>">Panel</a>
+          <form action="/logout" method="post">
+            <button class="logout-button" type="submit">Salir <span>→</span></button>
+          </form>
+        <% } else { %>
+          <a class="login-link" href="/login">Entrar</a>
+          <a class="nav-cta" href="/admin-login">Admin</a>
+        <% } %>
+      </nav>
+    </div>
+  </header>
+  <% if (flash) { %>
+    <div class="flash <%= flash.type %>"><%= flash.text %></div>
+  <% } %>
+  <main>
