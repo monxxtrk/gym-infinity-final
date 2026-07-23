@@ -654,7 +654,7 @@ body .icon-button:hover {
   .testimonial-admin-list article { grid-template-columns: 1fr; }
 }
 
-/* Cabecera premium v9 */
+/* Cabecera principal */
 .site-header {
   display: block;
   min-height: 0;
@@ -860,6 +860,11 @@ body .icon-button:hover {
 .team-account-card span,.team-account-card small { color: var(--muted); overflow-wrap: anywhere; }
 .team-password-form { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
 .team-password-form input { min-height: 42px; }
+.admin-guide { margin: -4px 0 22px; overflow: hidden; border: 1px solid #eadff0; border-radius: 16px; background: linear-gradient(135deg,#fdfaff,#fff7fb); }
+.admin-guide summary { display: flex; align-items: center; gap: 10px; padding: 14px 17px; color: #6b217f; font-size: .88rem; font-weight: 900; cursor: pointer; }
+.admin-guide summary::before { content: "?"; display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #fff; background: linear-gradient(135deg,#7c3aed,#ec4899); }
+.admin-guide ul { display: grid; gap: 7px; margin: 0; padding: 0 20px 16px 56px; color: #64576b; font-size: .82rem; line-height: 1.45; }
+.admin-guide li::marker { color: #c026d3; }
 .account-security { grid-template-columns: 1.1fr 1fr 1fr auto; align-items: end; margin-top: 24px; }
 .legal-document { max-width: 920px; font-size: 1.04rem; line-height: 1.75; }
 .legal-document h2 { margin-top: 16px; }

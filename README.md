@@ -152,6 +152,15 @@ gym-infinity-final/
 └── README.md              Documentación del proyecto
 ```
 
+### Organización en Visual Studio Code
+
+La carpeta `.vscode` incluye una configuración sencilla para trabajar con mayor claridad:
+
+- oculta dependencias, copias de seguridad, sesiones y bases locales del explorador;
+- agrupa `package-lock.json` junto a `package.json`;
+- mantiene codificación UTF-8 para conservar tildes y la letra ñ;
+- recomienda extensiones para EJS, SQLite y rutas de archivos.
+
 ## Instalación local
 
 Requisitos:
