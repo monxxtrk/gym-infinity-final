@@ -177,6 +177,7 @@ function migrateSchema(db) {
   db.run("UPDATE products SET price = 189000, image_url = 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=82' WHERE name = 'Gym Pack Infinity'", () => {});
   db.run("UPDATE products SET price = 69000, image_url = 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=1200&q=82' WHERE name = 'Botella Smart'", () => {});
   db.run("UPDATE products SET price = 59000, image_url = 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1200&q=82' WHERE name = 'Guantes Pro'", () => {});
+  db.run("UPDATE products SET description = replace(description, 'asesoria', 'asesoría') WHERE description LIKE '%asesoria%'", () => {});
   db.run("UPDATE routines SET title = 'Glúteo y Pierna Pro' WHERE title = 'Gluteo y Pierna Pro'", () => {});
   db.run("UPDATE routines SET title = 'Glúteo Infinity 6S' WHERE title = 'Gluteo Infinity 6S'", () => {});
   db.run("UPDATE nutrition_plans SET title = 'Definición Inteligente' WHERE title = 'Definicion Inteligente'", () => {});
@@ -273,7 +274,7 @@ function seedDatabase(db) {
     ["Shaker Pro 700 ml", 32000, "Mezclador resistente con compartimento para polvo y capsulas.", "https://images.unsplash.com/photo-1622484211148-2ee8b0db5b8f?auto=format&fit=crop&w=1200&q=80", "Accesorios", 25],
     ["Guantes de Entrenamiento", 49000, "Guantes con agarre reforzado para pesas, poleas y máquinas.", "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1200&q=80", "Accesorios", 15],
     ["Bandas de Resistencia", 39000, "Set de bandas para activacion, movilidad y entrenamiento en casa.", "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&w=1200&q=80", "Accesorios", 30],
-    ["Creatina Monohidratada", 89000, "Suplemento para rendimiento en fuerza y potencia. Compra final con asesoria del administrador.", "https://images.unsplash.com/photo-1612531386530-97286d97c2d2?auto=format&fit=crop&w=1200&q=80", "Suplementos", 20],
+    ["Creatina Monohidratada", 89000, "Suplemento para rendimiento en fuerza y potencia. Compra final con asesoría del administrador.", "https://images.unsplash.com/photo-1612531386530-97286d97c2d2?auto=format&fit=crop&w=1200&q=80", "Suplementos", 20],
     ["Toalla Infinity", 28000, "Toalla deportiva compacta, absorbente y facil de llevar.", "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=1200&q=80", "Indumentaria", 22]
   ].forEach((product) => {
     db.run(
